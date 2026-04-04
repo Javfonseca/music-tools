@@ -173,6 +173,7 @@ const STD_OPEN=[4,9,2,7,11,4];
 // Pentatonic positions (base: Am=9 for minor, A=9 for major)
 const PENTA_MINOR={
   id:'penta-m', name:'Penta Menor', aka:'', color:'#4a9eff', type:'penta',
+  semis:[0,3,5,7,10],
   degs:{0:'R',3:'b3',5:'4',7:'5',10:'b7'},
   desc:'1 – b3 – 4 – 5 – b7. La escala más usada en rock, blues y metal.',
   positions:[
@@ -185,6 +186,7 @@ const PENTA_MINOR={
 };
 const PENTA_MAJOR={
   id:'penta-M', name:'Penta Mayor', aka:'', color:'#4caf50', type:'penta',
+  semis:[0,2,4,7,9],
   degs:{0:'R',2:'M2',4:'M3',7:'5',9:'M6'},
   desc:'1 – 2 – 3 – 5 – 6. Relativa mayor de la pentatónica menor.',
   positions:[
