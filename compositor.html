@@ -10,33 +10,33 @@ body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd}
 .header{padding:.9rem 1.5rem;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1e1e1e}
 .back{color:#555;text-decoration:none;font-size:13px}.back:hover{color:#aaa}
 .page-title{color:#ddd;font-size:15px;font-weight:600}
-.container{max-width:960px;margin:0 auto;padding:1.5rem}
+.container{max-width:1100px;margin:0 auto;padding:1.5rem 2rem}
 .pw{padding:1rem;background:#1a1a1a;border-radius:12px;font-family:sans-serif;color:#ddd}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:.8rem}
-.psec{font-size:10px;color:#555;letter-spacing:.09em;margin-bottom:4px}
-.sel{background:#222;border:1px solid #444;color:#ddd;border-radius:6px;padding:4px 8px;font-size:13px}
+.psec{font-size:13px;color:#666;letter-spacing:.07em;margin-bottom:7px}
+.sel{background:#222;border:1px solid #444;color:#ddd;border-radius:6px;padding:7px 12px;font-size:15px}
 .sel:focus{outline:none;border-color:#888}
-.mb{font-size:11px;padding:5px 10px;border-radius:7px;border:2px solid transparent;cursor:pointer;color:#fff;font-weight:600;opacity:.5;line-height:1.3}
+.mb{font-size:14px;padding:8px 14px;border-radius:7px;border:2px solid transparent;cursor:pointer;color:#fff;font-weight:600;opacity:.5;line-height:1.3}
 .mb:hover{opacity:.8}
 .mb.on{opacity:1;border-color:rgba(255,255,255,.3)}
-.tb{font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid #444;cursor:pointer;color:#ccc;background:transparent;white-space:nowrap}
+.tb{font-size:13px;padding:6px 12px;border-radius:6px;border:1px solid #444;cursor:pointer;color:#ccc;background:transparent;white-space:nowrap}
 .tb:hover{border-color:#888;color:#fff}
 .tb.on{background:#3a3a3a;color:#fff;border-color:#ccc}
-.chord-btn{padding:7px 10px;border-radius:8px;border:2px solid transparent;cursor:pointer;font-size:12px;font-weight:700;color:#fff;min-width:50px;text-align:center;line-height:1.3}
+.chord-btn{padding:9px 14px;border-radius:9px;border:2px solid transparent;cursor:pointer;font-size:14px;font-weight:700;color:#fff;min-width:60px;text-align:center;line-height:1.3}
 .chord-btn:hover{transform:scale(1.06)}
 .chord-btn:active{transform:scale(.96)}
 .prog-slot{display:inline-flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:2px}
-.prog-chip{padding:5px 9px;border-radius:7px;font-size:12px;font-weight:700;color:#fff;min-width:44px;text-align:center;border:2px solid rgba(255,255,255,.12)}
+.prog-chip{padding:7px 12px;border-radius:8px;font-size:14px;font-weight:700;color:#fff;min-width:44px;text-align:center;border:2px solid rgba(255,255,255,.12)}
 .prog-chip:hover{border-color:rgba(255,255,255,.45)}
 .prog-remove{font-size:10px;color:#555}
 .prog-num{font-size:9px;color:#444}
-.preset{font-size:11px;padding:3px 8px;border:1px solid #444;border-radius:5px;background:transparent;color:#999;cursor:pointer}
+.preset{font-size:13px;padding:5px 11px;border:1px solid #444;border-radius:5px;background:transparent;color:#999;cursor:pointer}
 .preset:hover{background:#2a2a2a;color:#fff}
-.ctrl-btn{font-size:11px;padding:3px 8px;border:1px solid #555;border-radius:5px;background:#222;color:#aaa;cursor:pointer}
+.ctrl-btn{font-size:13px;padding:5px 11px;border:1px solid #555;border-radius:5px;background:#222;color:#aaa;cursor:pointer}
 .ctrl-btn:hover{background:#333;color:#fff}
-.info-bar{font-size:12px;color:#888;padding:7px 10px;background:#111;border-radius:6px;margin-bottom:.8rem;min-height:34px;line-height:1.6}
-.mode-desc{font-size:11px;color:#666;padding:5px 0 8px;border-bottom:1px solid #252525;margin-bottom:.7rem;line-height:1.5}
-.zdot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+.info-bar{font-size:14px;color:#888;padding:10px 14px;background:#111;border-radius:8px;margin-bottom:.9rem;min-height:40px;line-height:1.7}
+.mode-desc{font-size:13px;color:#777;padding:7px 0 10px;border-bottom:1px solid #252525;margin-bottom:.9rem;line-height:1.6}
+.zdot{width:13px;height:13px;border-radius:50%;display:inline-block;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -81,7 +81,7 @@ body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd}
   <div class="info-bar" id="info-bar">Selecciona un modo y agrega acordes.</div>
   <div class="psec">GRÁFICA DE TENSIÓN TONAL</div>
   <div style="overflow-x:auto;width:100%"><svg id="chart-svg" style="display:block;width:100%" height="210"></svg></div>
-  <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:11px;color:#888;align-items:center">
+  <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:14px;color:#888;align-items:center">
     <span style="display:flex;align-items:center;gap:4px"><span class="zdot" style="background:#4ec9a0"></span>Tónica — reposo</span>
     <span style="display:flex;align-items:center;gap:4px"><span class="zdot" style="background:#e0a030"></span>Subdominante — movimiento</span>
     <span style="display:flex;align-items:center;gap:4px"><span class="zdot" style="background:#e05a5a"></span>Dominante — tensión</span>
