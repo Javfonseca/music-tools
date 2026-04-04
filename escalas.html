@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escalas — Music Theory Tools</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd}
+.header{padding:.9rem 1.5rem;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1e1e1e}
+.back{color:#555;text-decoration:none;font-size:13px}
+.back:hover{color:#aaa}
+.page-title{color:#ddd;font-size:15px;font-weight:600}
+.container{max-width:960px;margin:0 auto;padding:1.5rem}
+/* Widget styles */
+.cs-root{padding:1rem 0;font-family:sans-serif}
+.cs-controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:.9rem}
+.cs-btn{font-size:13px;padding:5px 10px;border:0.5px solid #444;border-radius:8px;background:transparent;color:#ccc;cursor:pointer}
+.cs-btn.active{background:#E6F1FB;color:#185FA5;border-color:transparent}
+.cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.cs-card{background:#1a1a1a;border:0.5px solid #2a2a2a;border-radius:12px;padding:1rem 1.25rem}
+.cs-label{font-size:12px;color:#666;margin-bottom:8px}
+.cs-title{font-size:15px;font-weight:500;margin-bottom:10px;color:#ddd}
+.cs-notes{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.cs-note{font-size:13px;font-weight:500;padding:4px 8px;border-radius:8px}
+.cs-note.root{background:#E6F1FB;color:#185FA5}
+.cs-note.reg{background:#222;color:#ccc}
+.cs-row{display:flex;gap:6px;font-size:12px;color:#666;margin-top:4px;align-items:center}
+.cs-deg{width:22px;text-align:center}
+.cs-interval{font-size:11px;padding:2px 5px;border-radius:4px;background:#222;color:#666}
+.cs-formula{font-size:12px;color:#555;margin-top:8px;padding-top:8px;border-top:0.5px solid #252525}
+.cs-section{font-size:11px;font-weight:500;color:#444;letter-spacing:.05em;margin-bottom:6px}
+.cs-table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:12px}
+.cs-table th{text-align:left;padding:5px 8px;color:#555;font-weight:500;border-bottom:0.5px solid #252525}
+.cs-table td{padding:5px 8px;border-bottom:0.5px solid #1e1e1e;color:#ccc}
+.cs-table tr:last-child td{border-bottom:none}
+.cs-root-cell{font-weight:500;color:#4a9eff}
+@media(max-width:500px){.cs-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="index.html">← Herramientas</a>
+  <span class="page-title">Escalas Mayor y Menor</span>
+</div>
+<div class="container">
+<div class="cs-root">
+  <div class="cs-section">TÓNICA</div>
+  <div class="cs-controls" id="roots"></div>
+  <div class="cs-grid" id="cards"></div>
+  <table class="cs-table" id="ref-table">
+    <thead><tr><th>Tónica</th><th>Mayor</th><th>Menor natural</th></tr></thead>
+    <tbody id="ref-body"></tbody>
+  </table>
+</div>
+</div>
+<script>
+const chromaticSharp=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const chromaticFlat=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const useFlats={'F':true,'Bb':true,'Eb':true,'Ab':true,'Db':true,'Gb':true};
+function getChromatic(root){return useFlats[root]?chromaticFlat:chromaticSharp;}
+function buildScale(root,formula){
+  const ch=getChromatic(root),start=ch.indexOf(root);
+  let pos=0,notes=[];
+  for(let i=0;i<formula.length;i++){notes.push(ch[(start+pos)%12]);pos+=formula[i];}
+  return notes;
+}
+const majorFormula=[2,2,1,2,2,2,1];
+const minorFormula=[2,1,2,2,1,2,2];
+const majorIntervals=['R','M2','M3','P4','P5','M6','M7'];
+const minorIntervals=['R','M2','m3','P4','P5','m6','m7'];
+const majorDegrees=['1','2','3','4','5','6','7'];
+const minorDegrees=['1','2','b3','4','5','b6','b7'];
+const roots=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+let selected='A';
+function render(){
+  const maj=buildScale(selected,majorFormula);
+  const min=buildScale(selected,minorFormula);
+  document.getElementById('cards').innerHTML=`
+    <div class="cs-card">
+      <div class="cs-label">Mayor</div>
+      <div class="cs-title">${selected} mayor</div>
+      <div class="cs-notes">${maj.map((n,i)=>`<span class="cs-note ${i===0?'root':'reg'}">${n}</span>`).join('')}</div>
+      <div class="cs-row">${majorDegrees.map(d=>`<span class="cs-deg">${d}</span>`).join('')}</div>
+      <div class="cs-row" style="margin-top:2px">${majorIntervals.map(v=>`<span class="cs-interval">${v}</span>`).join('')}</div>
+      <div class="cs-formula">Fórmula: T T s T T T s &nbsp;|&nbsp; 2-2-1-2-2-2-1</div>
+    </div>
+    <div class="cs-card">
+      <div class="cs-label">Menor natural</div>
+      <div class="cs-title">${selected} menor</div>
+      <div class="cs-notes">${min.map((n,i)=>`<span class="cs-note ${i===0?'root':'reg'}">${n}</span>`).join('')}</div>
+      <div class="cs-row">${minorDegrees.map(d=>`<span class="cs-deg">${d}</span>`).join('')}</div>
+      <div class="cs-row" style="margin-top:2px">${minorIntervals.map(v=>`<span class="cs-interval">${v}</span>`).join('')}</div>
+      <div class="cs-formula">Fórmula: T s T T s T T &nbsp;|&nbsp; 2-1-2-2-1-2-2</div>
+    </div>`;
+  document.querySelectorAll('.cs-btn').forEach(b=>b.classList.toggle('active',b.dataset.root===selected));
+}
+function buildRefTable(){
+  document.getElementById('ref-body').innerHTML=roots.map(r=>{
+    const maj=buildScale(r,majorFormula).join(' – ');
+    const min=buildScale(r,minorFormula).join(' – ');
+    return `<tr><td class="cs-root-cell">${r}</td><td>${maj}</td><td>${min}</td></tr>`;
+  }).join('');
+}
+const rootsEl=document.getElementById('roots');
+roots.forEach(r=>{
+  const b=document.createElement('button');
+  b.className='cs-btn';b.dataset.root=r;b.textContent=r;
+  b.onclick=()=>{selected=r;render();};
+  rootsEl.appendChild(b);
+});
+render();buildRefTable();
+</script>
+</body>
+</html>

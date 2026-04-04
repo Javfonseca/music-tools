@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modos — Music Theory Tools</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd}
+.header{padding:.9rem 1.5rem;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1e1e1e}
+.back{color:#555;text-decoration:none;font-size:13px}.back:hover{color:#aaa}
+.page-title{color:#ddd;font-size:15px;font-weight:600}
+.container{max-width:960px;margin:0 auto;padding:1.5rem}
+.pw{padding:1rem;background:#1a1a1a;border-radius:12px;font-family:sans-serif}
+.prow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.8rem}
+.pb{font-size:12px;padding:4px 10px;border:1px solid #444;border-radius:7px;background:transparent;color:#ccc;cursor:pointer;white-space:nowrap}
+.pb:hover{border-color:#888;color:#fff}
+.tb{font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid #444;cursor:pointer;color:#ccc;background:transparent;white-space:nowrap}
+.tb:hover{border-color:#888;color:#fff}
+.tb.on{background:#3a3a3a;color:#fff;border-color:#ccc}
+.mb{font-size:11px;padding:5px 10px;border-radius:7px;border:2px solid transparent;cursor:pointer;color:#fff;font-weight:600;opacity:.5;line-height:1.3}
+.mb:hover{opacity:.8}
+.mb.on{opacity:1;border-color:rgba(255,255,255,.3)}
+.psec{font-size:10px;color:#555;letter-spacing:.09em;margin-bottom:4px}
+.mcard{padding:8px 10px;background:#111;border-radius:7px;margin-bottom:10px;border-left:3px solid #333}
+.mcard-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.mcard-notes{font-size:13px;color:#ddd;margin-bottom:3px}
+.mcard-desc{font-size:11px;color:#666;line-height:1.5}
+.nav-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.nav-btn{font-size:16px;width:34px;height:34px;border:1px solid #555;border-radius:7px;background:#222;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
+.nav-btn:hover{background:#333;border-color:#aaa}
+.nav-btn:disabled{opacity:.25;cursor:default}
+.nav-label{font-size:13px;color:#aaa;min-width:90px;text-align:center}
+.nav-pips{display:flex;gap:5px;align-items:center}
+.nav-pip{width:10px;height:10px;border-radius:50%;background:#333;border:1px solid #555;cursor:pointer;flex-shrink:0}
+.nav-pip:hover{border-color:#aaa}
+.nav-pip.act{background:#ccc;border-color:#ccc}
+.pleg{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12px;color:#aaa;align-items:center}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="index.html">← Herramientas</a>
+  <span class="page-title">Modos</span>
+</div>
+<div class="container">
+<div class="pw">
+  <div class="psec">AFINACIÓN</div>
+  <div class="prow" id="tbtns"></div>
+  <div class="psec">TÓNICA</div>
+  <div class="prow" id="rbtns"></div>
+  <div class="psec">MODO</div>
+  <div class="prow" id="mbtns"></div>
+  <div class="mcard" id="mcard">
+    <div class="mcard-name" id="mcard-name"></div>
+    <div class="mcard-notes" id="mcard-notes"></div>
+    <div class="mcard-desc" id="mcard-desc"></div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" id="nav-prev">&#8592;</button>
+    <div class="nav-pips" id="nav-pips"></div>
+    <button class="nav-btn" id="nav-next">&#8594;</button>
+    <span class="nav-label" id="nav-label"></span>
+  </div>
+  <div id="fb" style="overflow-x:auto"></div>
+  <div class="pleg">
+    <span style="display:flex;align-items:center;gap:5px"><svg width="13" height="13"><circle cx="6.5" cy="6.5" r="5.5" fill="#f0c040"/></svg>Tónica</span>
+    <span style="display:flex;align-items:center;gap:5px"><svg width="13" height="13"><circle cx="6.5" cy="6.5" r="5.5" fill="#444"/></svg>Escala</span>
+    <span style="display:flex;align-items:center;gap:5px"><svg width="13" height="13"><circle cx="6.5" cy="6.5" r="5.5" fill="none" stroke="#888" stroke-width="1.5"/></svg>Al aire</span>
+  </div>
+</div>
+</div>
+<script>
+const NOTES_F=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const chrFlat=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const chrSharp=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const useFl={F:1,Bb:1,Eb:1,Ab:1,Db:1,Gb:1};
+const rootNames=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const rootSemi={C:0,'C#':1,D:2,Eb:3,E:4,F:5,'F#':6,G:7,Ab:8,A:9,Bb:10,B:11};
+const TUNINGS=[
+  {name:'Standard',s:[4,9,2,7,11,4]},{name:'Eb',s:[3,8,1,6,10,3]},
+  {name:'D',s:[2,7,0,5,9,2]},{name:'Drop D',s:[2,9,2,7,11,4]},
+  {name:'Drop C',s:[0,7,0,5,9,2]},{name:'Drop B',s:[11,6,11,4,8,1]},
+  {name:'Open G',s:[2,7,2,7,11,2]},{name:'Open D',s:[2,9,2,6,9,2]},
+  {name:'Open E',s:[4,11,4,8,11,4]},{name:'DADGAD',s:[2,9,2,7,9,2]},
+];
+const MODES=[
+  {name:'Ionian',aka:'mayor',color:'#4a9eff',semis:[0,2,4,5,7,9,11],degs:{0:'R',2:'2',4:'3',5:'4',7:'5',9:'6',11:'7'},desc:'Modo mayor estándar. Brillante y estable.',chords:'I△ – IIm – IIIm – IV△ – V△ – VIm – VIIdim'},
+  {name:'Dorian',aka:'',color:'#a07af0',semis:[0,2,3,5,7,9,10],degs:{0:'R',2:'2',3:'b3',5:'4',7:'5',9:'6',10:'b7'},desc:'Menor con 6ta mayor. Jazz, funk, rock.',chords:'Im – IIdim – III△ – IVm – Vm – VI△ – VII△'},
+  {name:'Phrygian',aka:'',color:'#e05a5a',semis:[0,1,3,5,7,8,10],degs:{0:'R',1:'b2',3:'b3',5:'4',7:'5',8:'b6',10:'b7'},desc:'Menor con b2. Oscuro y flamenco. Metal.',chords:'Im – II△ – III△ – IVm – Vdim – VI△ – VIIm'},
+  {name:'Lydian',aka:'',color:'#4ec9a0',semis:[0,2,4,6,7,9,11],degs:{0:'R',2:'2',4:'3',6:'#4',7:'5',9:'6',11:'7'},desc:'Mayor con #4. Etéreo. Bandas sonoras.',chords:'I△ – II△ – IIIm – #IVdim – V△ – VIm – VIIm'},
+  {name:'Mixolydian',aka:'',color:'#e07c40',semis:[0,2,4,5,7,9,10],degs:{0:'R',2:'2',4:'3',5:'4',7:'5',9:'6',10:'b7'},desc:'Mayor con b7. Rock, blues, dominante.',chords:'I△ – IIm – IIIdim – IV△ – Vm – VIm – VII△'},
+  {name:'Aeolian',aka:'menor nat.',color:'#7a9fc0',semis:[0,2,3,5,7,8,10],degs:{0:'R',2:'2',3:'b3',5:'4',7:'5',8:'b6',10:'b7'},desc:'Modo menor natural.',chords:'Im – IIdim – III△ – IVm – Vm – VI△ – VII△'},
+  {name:'Locrian',aka:'',color:'#c06090',semis:[0,1,3,5,6,8,10],degs:{0:'R',1:'b2',3:'b3',5:'4',6:'b5',8:'b6',10:'b7'},desc:'b2 y b5. Oscuro e inestable. Metal extremo.',chords:'Idim – II△ – IIIm – IVm – V△ – VI△ – VIIm'},
+];
+let selRoot='A',selMode=0,selTune=0,winStart=5;
+const WIN=5,MAX_FRET=12;
+function getPositions(){const maxStart=MAX_FRET-WIN+1;const arr=[];for(let i=0;i<=maxStart;i+=WIN)arr.push(i);if(arr[arr.length-1]!==maxStart)arr.push(maxStart);return arr;}
+function getOS(){const t=TUNINGS[selTune].s,OS={};for(let s=1;s<=6;s++)OS[s]=((t[6-s]%12)+12)%12;return OS;}
+function getRootFret(OS){return((rootSemi[selRoot]-OS[6])+12)%12;}
+function snapToRoot(){const OS=getOS(),rf=getRootFret(OS),positions=getPositions();let best=positions[0];for(const p of positions){if(rf>=p)best=p;}winStart=best;}
+function getNotes(root,mode){const chr=useFl[root]?chrFlat:chrSharp,rs=rootSemi[root];return mode.semis.map(s=>chr[(rs+s)%12]);}
+function navigate(dir){const positions=getPositions(),idx=positions.indexOf(winStart);if(dir<0&&idx>0){winStart=positions[idx-1];render();}else if(dir>0&&idx<positions.length-1){winStart=positions[idx+1];render();}}
+function renderNav(){
+  const positions=getPositions(),idx=positions.indexOf(winStart);
+  const pipsEl=document.getElementById('nav-pips');pipsEl.innerHTML='';
+  positions.forEach((p,i)=>{const pip=document.createElement('div');pip.className='nav-pip'+(i===idx?' act':'');pip.title=`Trastes ${p}–${p+WIN-1}`;pip.addEventListener('click',()=>{winStart=p;render();});pipsEl.appendChild(pip);});
+  document.getElementById('nav-label').textContent=`Trastes ${winStart}–${winStart+WIN-1}`;
+  document.getElementById('nav-prev').disabled=(idx<=0);
+  document.getElementById('nav-next').disabled=(idx>=positions.length-1);
+}
+function render(){
+  const rs=rootSemi[selRoot],mode=MODES[selMode];
+  const OS=getOS();
+  const lo=winStart,hi=winStart+WIN-1,hasOpen=(lo===0);
+  const frettedDots=[],openDots=[];
+  for(let s=1;s<=6;s++){
+    for(let f=hasOpen?1:lo;f<=hi;f++){const iv=((OS[s]+f)%12-rs+12)%12;if(mode.semis.includes(iv))frettedDots.push({s,f,iv});}
+    if(hasOpen){const iv=(OS[s]%12-rs+12)%12;if(mode.semis.includes(iv))openDots.push({s,iv});}
+  }
+  const seen=new Set();const openDedup=openDots.filter(d=>{if(seen.has(d.s))return false;seen.add(d.s);return true;});
+  const allFretted=frettedDots.map(d=>d.f);
+  const minF=allFretted.length?Math.min(...allFretted):(hasOpen?1:lo);
+  const maxF=allFretted.length?Math.max(...allFretted):hi;
+  const nF=maxF-minF+1;
+  const FW=68,SS=38,TP=20,DR=13;
+  const NUMOFF=DR+20,MRKOFF=DR+42,BP=MRKOFF+14;
+  const SLBL=32,OPEN_W=hasOpen?44:0,LP=SLBL+OPEN_W,RP=16;
+  const W=nF*FW+LP+RP,H=5*SS+TP+BP;
+  const fx=f=>LP+(f-minF+0.5)*FW,sy=s=>TP+(s-1)*SS,lastY=sy(6);
+  const tuning=TUNINGS[selTune].s;
+  const strLabels={};for(let s=1;s<=6;s++){const n=NOTES_F[((tuning[6-s]%12)+12)%12];strLabels[s]=s===6?n.toLowerCase():n;}
+  let sv=`<svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;max-width:${W}px">`;
+  sv+=`<line x1="${LP}" y1="${TP-4}" x2="${LP}" y2="${lastY+DR+2}" stroke="#888" stroke-width="3"/>`;
+  if(hasOpen)sv+=`<text x="${SLBL+OPEN_W/2}" y="${TP-10}" font-size="11" fill="#444" text-anchor="middle" font-family="sans-serif">0</text>`;
+  for(let i=1;i<=nF;i++)sv+=`<line x1="${LP+i*FW}" y1="${TP}" x2="${LP+i*FW}" y2="${lastY+DR+2}" stroke="#2e2e2e" stroke-width="1"/>`;
+  for(let s=1;s<=6;s++){const y=sy(s),sw=s===6?2.5:s===5?2:s===4?1.6:s===3?1.2:s===2?0.9:0.7;sv+=`<line x1="${hasOpen?SLBL:LP}" y1="${y}" x2="${LP+nF*FW}" y2="${y}" stroke="#4a4a4a" stroke-width="${sw}"/>`;sv+=`<text x="${SLBL-11}" y="${y+5}" font-size="15" font-weight="700" fill="#fff" text-anchor="middle" font-family="sans-serif">${strLabels[s]}</text>`;}
+  for(let f=minF;f<=maxF;f++){const x=fx(f),isMark=[3,5,7,9,12,15,17].includes(f);sv+=`<text x="${x}" y="${lastY+NUMOFF}" font-size="14" font-weight="${isMark?700:400}" fill="${isMark?'#fff':'#888'}" text-anchor="middle" font-family="sans-serif">${f}</text>`;if(isMark){(f===12?[x-7,x+7]:[x]).forEach(cx=>sv+=`<circle cx="${cx}" cy="${lastY+MRKOFF}" r="3.5" fill="#3a3a3a"/>`);}  }
+  for(const {s,f,iv} of frettedDots){const isR=iv===0,x=fx(f),y=sy(s),fill=isR?mode.color:'#444',lbl=mode.degs[iv]||'?';sv+=`<circle cx="${x}" cy="${y}" r="${DR}" fill="${fill}"/>`;sv+=`<text x="${x}" y="${y+4}" font-size="${lbl.length>1?9:11}" fill="#fff" text-anchor="middle" font-family="sans-serif" font-weight="600">${lbl}</text>`;}
+  const ox=SLBL+OPEN_W/2;
+  for(const {s,iv} of openDedup){const isR=iv===0,y=sy(s),lbl=mode.degs[iv]||'?';if(isR){sv+=`<circle cx="${ox}" cy="${y}" r="${DR}" fill="${mode.color}"/>`;sv+=`<text x="${ox}" y="${y+4}" font-size="${lbl.length>1?9:11}" fill="#fff" text-anchor="middle" font-family="sans-serif" font-weight="600">${lbl}</text>`;}else{sv+=`<circle cx="${ox}" cy="${y}" r="${DR}" fill="#1a1a1a" stroke="#888" stroke-width="1.5"/>`;sv+=`<text x="${ox}" y="${y+4}" font-size="${lbl.length>1?9:11}" fill="#bbb" text-anchor="middle" font-family="sans-serif" font-weight="600">${lbl}</text>`;}}
+  sv+=`</svg>`;
+  document.getElementById('fb').innerHTML=sv;
+  const notes=getNotes(selRoot,mode);
+  document.getElementById('mcard').style.borderLeftColor=mode.color;
+  document.getElementById('mcard-name').style.color=mode.color;
+  document.getElementById('mcard-name').textContent=`${selRoot} ${mode.name}${mode.aka?' ('+mode.aka+')':''}`;
+  document.getElementById('mcard-notes').textContent='Notas: '+notes.join(' – ');
+  document.getElementById('mcard-desc').innerHTML=mode.desc+'<br><span style="color:#444">'+mode.chords+'</span>';
+  renderNav();
+  document.querySelectorAll('#tbtns .tb').forEach(b=>{const on=+b.dataset.v===selTune;b.classList.toggle('on',on);});
+  document.querySelectorAll('#rbtns .pb').forEach(b=>{const on=b.dataset.v===selRoot;b.classList.toggle('on',on);b.style.background=on?mode.color:'';b.style.borderColor=on?'transparent':'';});
+  document.querySelectorAll('#mbtns .mb').forEach(b=>{const on=+b.dataset.v===selMode;b.classList.toggle('on',on);b.style.background=MODES[+b.dataset.v].color;});
+}
+document.getElementById('nav-prev').addEventListener('click',()=>navigate(-1));
+document.getElementById('nav-next').addEventListener('click',()=>navigate(1));
+document.getElementById('tbtns').innerHTML=TUNINGS.map((t,i)=>`<button class="tb" data-v="${i}">${t.name}</button>`).join('');
+document.getElementById('rbtns').innerHTML=rootNames.map(r=>`<button class="pb" data-v="${r}">${r}</button>`).join('');
+document.getElementById('mbtns').innerHTML=MODES.map((m,i)=>`<button class="mb" data-v="${i}" style="background:${m.color}">${m.name}${m.aka?'<br><span style="font-size:9px;font-weight:400;opacity:.8">'+m.aka+'</span>':''}</button>`).join('');
+document.querySelectorAll('#tbtns .tb').forEach(b=>b.addEventListener('click',()=>{selTune=+b.dataset.v;render();}));
+document.querySelectorAll('#rbtns .pb').forEach(b=>b.addEventListener('click',()=>{selRoot=b.dataset.v;snapToRoot();render();}));
+document.querySelectorAll('#mbtns .mb').forEach(b=>b.addEventListener('click',()=>{selMode=+b.dataset.v;render();}));
+snapToRoot();render();
+</script>
+</body>
+</html>

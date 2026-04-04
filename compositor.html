@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compositor — Music Theory Tools</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd}
+.header{padding:.9rem 1.5rem;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1e1e1e}
+.back{color:#555;text-decoration:none;font-size:13px}.back:hover{color:#aaa}
+.page-title{color:#ddd;font-size:15px;font-weight:600}
+.container{max-width:960px;margin:0 auto;padding:1.5rem}
+.pw{padding:1rem;background:#1a1a1a;border-radius:12px;font-family:sans-serif;color:#ddd}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:.8rem}
+.psec{font-size:10px;color:#555;letter-spacing:.09em;margin-bottom:4px}
+.sel{background:#222;border:1px solid #444;color:#ddd;border-radius:6px;padding:4px 8px;font-size:13px}
+.sel:focus{outline:none;border-color:#888}
+.mb{font-size:11px;padding:5px 10px;border-radius:7px;border:2px solid transparent;cursor:pointer;color:#fff;font-weight:600;opacity:.5;line-height:1.3}
+.mb:hover{opacity:.8}
+.mb.on{opacity:1;border-color:rgba(255,255,255,.3)}
+.tb{font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid #444;cursor:pointer;color:#ccc;background:transparent;white-space:nowrap}
+.tb:hover{border-color:#888;color:#fff}
+.tb.on{background:#3a3a3a;color:#fff;border-color:#ccc}
+.chord-btn{padding:7px 10px;border-radius:8px;border:2px solid transparent;cursor:pointer;font-size:12px;font-weight:700;color:#fff;min-width:50px;text-align:center;line-height:1.3}
+.chord-btn:hover{transform:scale(1.06)}
+.chord-btn:active{transform:scale(.96)}
+.prog-slot{display:inline-flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:2px}
+.prog-chip{padding:5px 9px;border-radius:7px;font-size:12px;font-weight:700;color:#fff;min-width:44px;text-align:center;border:2px solid rgba(255,255,255,.12)}
+.prog-chip:hover{border-color:rgba(255,255,255,.45)}
+.prog-remove{font-size:10px;color:#555}
+.prog-num{font-size:9px;color:#444}
+.preset{font-size:11px;padding:3px 8px;border:1px solid #444;border-radius:5px;background:transparent;color:#999;cursor:pointer}
+.preset:hover{background:#2a2a2a;color:#fff}
+.ctrl-btn{font-size:11px;padding:3px 8px;border:1px solid #555;border-radius:5px;background:#222;color:#aaa;cursor:pointer}
+.ctrl-btn:hover{background:#333;color:#fff}
+.info-bar{font-size:12px;color:#888;padding:7px 10px;background:#111;border-radius:6px;margin-bottom:.8rem;min-height:34px;line-height:1.6}
+.mode-desc{font-size:11px;color:#666;padding:5px 0 8px;border-bottom:1px solid #252525;margin-bottom:.7rem;line-height:1.5}
+.zdot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="index.html">← Herramientas</a>
+  <span class="page-title">Compositor — Función Tonal</span>
+</div>
+<div class="container">
+<div class="pw">
+  <div class="psec">AFINACIÓN</div>
+  <div class="row" id="tune-btns" style="gap:5px;margin-bottom:.8rem"></div>
+  <div class="row">
+    <div><div class="psec">TONALIDAD</div><select class="sel" id="key-sel"></select></div>
+    <div><div class="psec">EXTENSIONES</div>
+      <select class="sel" id="ext-sel">
+        <option value="triad">Tríadas</option>
+        <option value="seventh">Con 7ma</option>
+      </select>
+    </div>
+  </div>
+  <div class="psec">MODO</div>
+  <div class="row" id="mode-btns" style="gap:6px;margin-bottom:.5rem"></div>
+  <div class="mode-desc" id="mode-desc"></div>
+  <div class="psec">PALETA — clic para agregar</div>
+  <div class="row" id="palette" style="gap:7px;margin-bottom:.8rem;flex-wrap:wrap"></div>
+  <div class="row" style="margin-bottom:.6rem;gap:6px">
+    <span style="font-size:10px;color:#444;letter-spacing:.06em">PROGRESIONES:</span>
+    <div id="presets" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+    <span class="psec" style="margin:0">PROGRESIÓN</span>
+    <button class="ctrl-btn" id="undo-btn">↩ Deshacer</button>
+    <button class="ctrl-btn" id="clear-btn">✕ Limpiar</button>
+  </div>
+  <div id="prog-display" style="display:flex;flex-wrap:wrap;gap:5px;min-height:52px;padding:7px;background:#111;border-radius:8px;margin-bottom:.6rem;align-items:flex-start">
+    <span id="prog-empty" style="font-size:12px;color:#333;align-self:center">Agrega acordes desde la paleta...</span>
+  </div>
+  <div class="psec" style="margin-bottom:4px">TABLATURA <span style="color:#333;font-size:9px;font-weight:400;letter-spacing:0">(raíz resaltada · calculada para la afinación seleccionada)</span></div>
+  <div id="tab-display" style="display:flex;overflow-x:auto;gap:6px;padding:12px 10px;background:#111;border-radius:8px;margin-bottom:.7rem;min-height:164px;align-items:flex-end">
+    <span id="tab-empty" style="font-size:12px;color:#333;align-self:center;padding:8px">Los diagramas aparecerán aquí...</span>
+  </div>
+  <div class="info-bar" id="info-bar">Selecciona un modo y agrega acordes.</div>
+  <div class="psec">GRÁFICA DE TENSIÓN TONAL</div>
+  <div style="overflow-x:auto;width:100%"><svg id="chart-svg" style="display:block;width:100%" height="210"></svg></div>
+  <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:11px;color:#888;align-items:center">
+    <span style="display:flex;align-items:center;gap:4px"><span class="zdot" style="background:#4ec9a0"></span>Tónica — reposo</span>
+    <span style="display:flex;align-items:center;gap:4px"><span class="zdot" style="background:#e0a030"></span>Subdominante — movimiento</span>
+    <span style="display:flex;align-items:center;gap:4px"><span class="zdot" style="background:#e05a5a"></span>Dominante — tensión</span>
+  </div>
+</div>
+</div>
+<script>
+const chrFlat=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const chrSharp=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const NOTES_F=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const useFl={F:1,Bb:1,Eb:1,Ab:1,Db:1,Gb:1};
+const rootNames=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const rootSemi={C:0,'C#':1,D:2,Eb:3,E:4,F:5,'F#':6,G:7,Ab:8,A:9,Bb:10,B:11};
+const FC={T:'#4ec9a0',S:'#e0a030',D:'#e05a5a'};
+const FN={T:'Tónica',S:'Subdominante',D:'Dominante'};
+const EXT={triad:{maj:'',min:'m',dim:'dim',dom:''},seventh:{maj:'maj7',min:'m7',dim:'dim7',dom:'7'}};
+const TUNINGS=[
+  {name:'Standard',s:[4,9,2,7,11,4]},{name:'Eb',s:[3,8,1,6,10,3]},
+  {name:'D',s:[2,7,0,5,9,2]},{name:'Drop D',s:[2,9,2,7,11,4]},
+  {name:'Drop C',s:[0,7,0,5,9,2]},{name:'Drop B',s:[11,6,11,4,8,1]},
+  {name:'Open G',s:[2,7,2,7,11,2]},{name:'Open D',s:[2,9,2,6,9,2]},
+  {name:'Open E',s:[4,11,4,8,11,4]},{name:'DADGAD',s:[2,9,2,7,9,2]},
+];
+const MODES={
+  ionian:{name:'Ionian',aka:'mayor',color:'#4a9eff',char:'Escala mayor estándar. Brillante y estable.',intervals:[0,2,4,5,7,9,11],chords:[{deg:'I',q:'maj',func:'T',t:1,label:'I'},{deg:'IIm',q:'min',func:'S',t:4,label:'IIm'},{deg:'IIIm',q:'min',func:'T',t:3,label:'IIIm'},{deg:'IV',q:'maj',func:'S',t:5,label:'IV'},{deg:'V',q:'dom',func:'D',t:7,label:'V'},{deg:'VIm',q:'min',func:'T',t:2,label:'VIm'},{deg:'VIIdim',q:'dim',func:'D',t:9,label:'VIIdim'}],presets:[{n:'I–V–VIm–IV',i:[0,4,5,3]},{n:'I–IV–V–I',i:[0,3,4,0]},{n:'IIm–V–I',i:[1,4,0]}]},
+  dorian:{name:'Dorian',aka:'',color:'#a07af0',char:'6ta mayor sobre escala menor. Rock, jazz, blues.',intervals:[0,2,3,5,7,9,10],chords:[{deg:'Im',q:'min',func:'T',t:1,label:'Im'},{deg:'IIm',q:'min',func:'S',t:4,label:'IIm'},{deg:'bIII',q:'maj',func:'T',t:3,label:'bIII'},{deg:'IV',q:'maj',func:'S',t:5,label:'IV'},{deg:'Vm',q:'min',func:'D',t:6,label:'Vm'},{deg:'VIdim',q:'dim',func:'D',t:8,label:'VIdim'},{deg:'bVII',q:'maj',func:'S',t:4,label:'bVII'}],presets:[{n:'Im–IV–Im–IV',i:[0,3,0,3]},{n:'Im–bVII–IV–Im',i:[0,6,3,0]},{n:'Im–IIm–IV–Im',i:[0,1,3,0]}]},
+  phrygian:{name:'Phrygian',aka:'',color:'#e05a5a',char:'b2 característica. Oscuro y flamenco. Metal.',intervals:[0,1,3,5,7,8,10],chords:[{deg:'Im',q:'min',func:'T',t:1,label:'Im'},{deg:'bII',q:'maj',func:'D',t:7,label:'bII'},{deg:'bIII',q:'maj',func:'T',t:3,label:'bIII'},{deg:'IVm',q:'min',func:'S',t:5,label:'IVm'},{deg:'Vdim',q:'dim',func:'D',t:8,label:'Vdim'},{deg:'bVI',q:'maj',func:'S',t:4,label:'bVI'},{deg:'bVIIm',q:'min',func:'S',t:5,label:'bVIIm'}],presets:[{n:'Im–bII–Im',i:[0,1,0]},{n:'Im–bVI–IVm–bII',i:[0,5,3,1]},{n:'Im–IVm–bVI–bII',i:[0,3,5,1]}]},
+  lydian:{name:'Lydian',aka:'',color:'#4ec9a0',char:'#4 característica. Etéreo. Bandas sonoras.',intervals:[0,2,4,6,7,9,11],chords:[{deg:'I',q:'maj',func:'T',t:1,label:'I'},{deg:'II',q:'maj',func:'S',t:5,label:'II'},{deg:'IIIm',q:'min',func:'T',t:3,label:'IIIm'},{deg:'#IVdim',q:'dim',func:'D',t:8,label:'#IVdim'},{deg:'V',q:'dom',func:'D',t:6,label:'V'},{deg:'VIm',q:'min',func:'T',t:2,label:'VIm'},{deg:'VIIm',q:'min',func:'S',t:4,label:'VIIm'}],presets:[{n:'I–II–I–II',i:[0,1,0,1]},{n:'I–VIm–II–I',i:[0,5,1,0]},{n:'I–II–V–I',i:[0,1,4,0]}]},
+  mixolydian:{name:'Mixolydian',aka:'',color:'#e07c40',char:'b7 sobre escala mayor. Rock, blues, dominante.',intervals:[0,2,4,5,7,9,10],chords:[{deg:'I',q:'maj',func:'T',t:1,label:'I'},{deg:'IIm',q:'min',func:'S',t:4,label:'IIm'},{deg:'IIIdim',q:'dim',func:'D',t:7,label:'IIIdim'},{deg:'IV',q:'maj',func:'S',t:5,label:'IV'},{deg:'Vm',q:'min',func:'D',t:5,label:'Vm'},{deg:'VIm',q:'min',func:'T',t:2,label:'VIm'},{deg:'bVII',q:'maj',func:'S',t:5,label:'bVII'}],presets:[{n:'I–bVII–IV–I',i:[0,6,3,0]},{n:'I–IV–bVII–I',i:[0,3,6,0]},{n:'I–Vm–IV–I',i:[0,4,3,0]}]},
+  aeolian:{name:'Aeolian',aka:'menor nat.',color:'#7a9fc0',char:'Escala menor natural. Oscura y melancólica.',intervals:[0,2,3,5,7,8,10],chords:[{deg:'Im',q:'min',func:'T',t:1,label:'Im'},{deg:'IIdim',q:'dim',func:'D',t:7,label:'IIdim'},{deg:'bIII',q:'maj',func:'T',t:3,label:'bIII'},{deg:'IVm',q:'min',func:'S',t:4,label:'IVm'},{deg:'Vm',q:'min',func:'D',t:6,label:'Vm'},{deg:'bVI',q:'maj',func:'T',t:2,label:'bVI'},{deg:'bVII',q:'maj',func:'S',t:4,label:'bVII'}],presets:[{n:'Im–bVI–bIII–bVII',i:[0,5,2,6]},{n:'Im–IVm–Vm–Im',i:[0,3,4,0]},{n:'Im–bVII–bVI–Vm',i:[0,6,5,4]}]},
+  locrian:{name:'Locrian',aka:'',color:'#c06090',char:'b2 y b5. Máxima inestabilidad. Metal extremo.',intervals:[0,1,3,5,6,8,10],chords:[{deg:'Idim',q:'dim',func:'T',t:6,label:'Idim'},{deg:'bII',q:'maj',func:'T',t:3,label:'bII'},{deg:'IIIm',q:'min',func:'S',t:4,label:'IIIm'},{deg:'IVm',q:'min',func:'S',t:5,label:'IVm'},{deg:'bV',q:'maj',func:'D',t:7,label:'bV'},{deg:'bVI',q:'maj',func:'S',t:4,label:'bVI'},{deg:'bVIIm',q:'min',func:'D',t:6,label:'bVIIm'}],presets:[{n:'Idim–bII–Idim',i:[0,1,0]},{n:'Idim–IVm–bV–Idim',i:[0,3,4,0]},{n:'bII–IIIm–IVm–Idim',i:[1,2,3,0]}]},
+};
+const MODE_KEYS=Object.keys(MODES);
+let selKey='A',selModeKey='aeolian',selExt='triad',selTune=0,progression=[];
+
+function computeVoicing(rs,q,tuning){
+  const r=((rs%12)+12)%12;const T=new Set();
+  if(q==='maj'||q==='dom'){T.add(r);T.add((r+4)%12);T.add((r+7)%12);}
+  else if(q==='min'){T.add(r);T.add((r+3)%12);T.add((r+7)%12);}
+  else if(q==='dim'){T.add(r);T.add((r+3)%12);T.add((r+6)%12);}
+  if(q==='dom')T.add((r+10)%12);
+  const o6=((tuning[0]%12)+12)%12,o5=((tuning[1]%12)+12)%12;
+  const rf6=((r-o6)+12)%12,rf5=((r-o5)+12)%12;
+  const anchor=(rf6===0||rf5===0)?0:Math.min(rf6,rf5);
+  const wHi=Math.max(4,anchor+3);
+  const v=[];
+  for(let i=0;i<6;i++){
+    const o=((tuning[i]%12)+12)%12;
+    if(T.has(o)){v.push(0);continue;}
+    let f=-1;for(let n=1;n<=wHi;n++){if(T.has((o+n)%12)){f=n;break;}}v.push(f);
+  }
+  if(v[0]>=0){const n6=(o6+v[0])%12;if(n6!==r&&v[1]>=0&&(o5+v[1])%12===r)v[0]=-1;}
+  return v;
+}
+
+function drawDiag(voicing,name,color,chRootSemi,tuning){
+  const W=108,H=152;
+  const SX=[13,27,41,55,69,83];
+  const GY=34,FH=22,NF=4,DR=7;
+  const fretted=voicing.filter(f=>f>0);
+  const minF=fretted.length?Math.min(...fretted):1,maxF=fretted.length?Math.max(...fretted):1;
+  const showNut=(minF<=2&&maxF<=4);const ds=showNut?1:minF;
+  const strLabels=tuning.map((s,i)=>{const n=NOTES_F[((s%12)+12)%12];return i===5?n.toLowerCase():n;});
+  let s=`<svg width="${W}" height="${H}" style="flex-shrink:0;display:block">`;
+  const disp=name.length>9?name.replace('dim','°').replace('maj','M'):name;
+  s+=`<text x="${W/2}" y="16" font-size="15" font-weight="700" fill="${color}" text-anchor="middle" font-family="sans-serif">${disp}</text>`;
+  if(showNut)s+=`<rect x="${SX[0]-4}" y="${GY-5}" width="${SX[5]-SX[0]+8}" height="5" rx="2.5" fill="#aaa"/>`;
+  else s+=`<text x="${SX[5]+8}" y="${GY+12}" font-size="11" fill="#888" font-family="sans-serif">${ds}</text>`;
+  for(let i=0;i<=NF;i++)s+=`<line x1="${SX[0]-3}" y1="${GY+i*FH}" x2="${SX[5]+3}" y2="${GY+i*FH}" stroke="#333" stroke-width="1.5"/>`;
+  SX.forEach(x=>s+=`<line x1="${x}" y1="${GY}" x2="${x}" y2="${GY+NF*FH}" stroke="#333" stroke-width="1.5"/>`);
+  voicing.forEach((f,i)=>{const x=SX[i];if(f===-1)s+=`<text x="${x}" y="${GY-9}" font-size="13" fill="#666" text-anchor="middle" font-family="sans-serif" font-weight="500">x</text>`;else if(f===0)s+=`<circle cx="${x}" cy="${GY-10}" r="5" fill="none" stroke="#888" stroke-width="1.8"/>`;});
+  if(fretted.length){
+    const barIdxs=voicing.map((f,i)=>f===minF?i:-1).filter(i=>i>=0);
+    const hasBarre=barIdxs.length>=2&&(barIdxs[barIdxs.length-1]-barIdxs[0])>=1;
+    const barRow=minF-ds;
+    if(hasBarre&&barRow>=0&&barRow<NF){
+      const bcy=GY+barRow*FH+FH/2,bx1=SX[barIdxs[0]]-6,bx2=SX[barIdxs[barIdxs.length-1]]+6;
+      s+=`<rect x="${bx1}" y="${bcy-DR+1}" width="${bx2-bx1}" height="${DR*2-2}" rx="${DR-1}" fill="${color}" opacity=".85"/>`;
+      barIdxs.forEach(i=>{const t=((tuning[i]%12)+12)%12;if((t+minF)%12===chRootSemi%12)s+=`<circle cx="${SX[i]}" cy="${bcy}" r="${DR}" fill="none" stroke="#fff" stroke-width="2"/>`;});
+    }
+    voicing.forEach((f,i)=>{
+      if(f<=0)return;const row=f-ds;if(row<0||row>=NF)return;
+      if(hasBarre&&f===minF)return;
+      const cx=SX[i],cy=GY+row*FH+FH/2,t=((tuning[i]%12)+12)%12;
+      const isRoot=(t+f)%12===chRootSemi%12;
+      s+=`<circle cx="${cx}" cy="${cy}" r="${DR}" fill="${isRoot?color:'#555'}"/>`;
+      if(isRoot)s+=`<circle cx="${cx}" cy="${cy}" r="${DR}" fill="none" stroke="#fff" stroke-width="2"/>`;
+    });
+  }
+  strLabels.forEach((l,i)=>s+=`<text x="${SX[i]}" y="${GY+NF*FH+16}" font-size="11" fill="#555" text-anchor="middle" font-family="sans-serif" font-weight="500">${l}</text>`);
+  s+=`</svg>`;return s;
+}
+
+function chr(k){return useFl[k]?chrFlat:chrSharp;}
+function chordName(k,mk,idx,ext){const m=MODES[mk],ch=m.chords[idx];return chr(k)[(rootSemi[k]+m.intervals[idx])%12]+(EXT[ext]||EXT.triad)[ch.q];}
+function chordTension(mk,idx,ext){return Math.min(10,MODES[mk].chords[idx].t+(ext==='seventh'?1:0));}
+function chordRootSemi(k,mk,idx){return(rootSemi[k]+MODES[mk].intervals[idx])%12;}
+function currentTuning(){return TUNINGS[selTune].s;}
+
+function buildTuneButtons(){
+  const el=document.getElementById('tune-btns');el.innerHTML='';
+  TUNINGS.forEach((t,i)=>{const btn=document.createElement('button');btn.className='tb'+(i===selTune?' on':'');btn.textContent=t.name;btn.addEventListener('click',()=>{selTune=i;buildTuneButtons();updateAll();});el.appendChild(btn);});
+}
+function buildModeButtons(){
+  const el=document.getElementById('mode-btns');el.innerHTML='';
+  MODE_KEYS.forEach(mk=>{const m=MODES[mk],btn=document.createElement('button');btn.className='mb'+(mk===selModeKey?' on':'');btn.style.background=m.color;btn.innerHTML=`${m.name}${m.aka?'<br><span style="font-size:9px;font-weight:400;opacity:.8">'+m.aka+'</span>':''}`;btn.addEventListener('click',()=>{selModeKey=mk;progression=[];buildAll();});el.appendChild(btn);});
+}
+function buildPalette(){
+  const el=document.getElementById('palette');el.innerHTML='';
+  const m=MODES[selModeKey];
+  m.chords.forEach((ch,i)=>{
+    const name=chordName(selKey,selModeKey,i,selExt);
+    const btn=document.createElement('div');btn.className='chord-btn';
+    btn.style.background=FC[ch.func];btn.style.boxShadow=`0 2px 8px ${FC[ch.func]}44`;
+    btn.innerHTML=`<div style="font-size:9px;opacity:.7;font-weight:400">${ch.label}</div><div>${name}</div>`;
+    btn.addEventListener('click',()=>{if(progression.length>=16)return;progression.push({chordIdx:i,name,deg:ch.label,func:ch.func,tension:chordTension(selModeKey,i,selExt),color:FC[ch.func]});updateAll();});
+    el.appendChild(btn);
+  });
+}
+function buildPresets(){
+  const el=document.getElementById('presets');el.innerHTML='';
+  MODES[selModeKey].presets.forEach(p=>{
+    const btn=document.createElement('button');btn.className='preset';btn.textContent=p.n;
+    btn.addEventListener('click',()=>{const m=MODES[selModeKey];progression=p.i.map(i=>{const ch=m.chords[i];return{chordIdx:i,name:chordName(selKey,selModeKey,i,selExt),deg:ch.label,func:ch.func,tension:chordTension(selModeKey,i,selExt),color:FC[ch.func]};});updateAll();});
+    el.appendChild(btn);
+  });
+}
+function buildModeDesc(){const m=MODES[selModeKey];document.getElementById('mode-desc').innerHTML=`<span style="color:${m.color};font-weight:600">${m.name}${m.aka?' ('+m.aka+')':''}</span> — ${m.char}`;}
+function buildAll(){buildModeButtons();buildModeDesc();buildPalette();buildPresets();updateAll();}
+
+function updateProgDisplay(){
+  const el=document.getElementById('prog-display'),empty=document.getElementById('prog-empty');
+  if(!progression.length){el.innerHTML='';el.appendChild(empty);return;}
+  el.innerHTML='';
+  progression.forEach((c,i)=>{
+    const slot=document.createElement('div');slot.className='prog-slot';slot.title='Clic para eliminar';
+    slot.innerHTML=`<div class="prog-num">${i+1}</div><div class="prog-chip" style="background:${c.color}22;border-color:${c.color}77"><div style="font-size:9px;opacity:.65;font-weight:400">${c.deg}</div><div style="font-size:13px;font-weight:700;color:${c.color}">${c.name}</div><div style="font-size:10px;color:#888">${c.tension.toFixed(1)}</div></div><div class="prog-remove">✕</div>`;
+    slot.addEventListener('click',()=>{progression.splice(i,1);updateAll();});el.appendChild(slot);
+  });
+}
+
+function updateTabDisplay(){
+  const el=document.getElementById('tab-display'),empty=document.getElementById('tab-empty');
+  if(!progression.length){el.innerHTML='';el.appendChild(empty);return;}
+  el.innerHTML='';const m=MODES[selModeKey];const tuning=currentTuning();
+  progression.forEach(c=>{
+    const ch=m.chords[c.chordIdx],rs=chordRootSemi(selKey,selModeKey,c.chordIdx),v=computeVoicing(rs,ch.q,tuning);
+    const wrap=document.createElement('div');wrap.style.cssText='display:inline-flex;flex-direction:column;align-items:center;flex-shrink:0';
+    wrap.innerHTML=drawDiag(v,c.name,c.color,rs,tuning);el.appendChild(wrap);
+  });
+}
+
+function updateInfoBar(){
+  const el=document.getElementById('info-bar');
+  if(!progression.length){el.textContent='Agrega acordes para ver el análisis de tensión.';return;}
+  const avg=progression.reduce((s,c)=>s+c.tension,0)/progression.length;
+  const maxT=Math.max(...progression.map(c=>c.tension)),maxC=progression.find(c=>c.tension===maxT),last=progression[progression.length-1];
+  let cad='';
+  if(progression.length>=2){const prev=progression[progression.length-2];if(prev.func==='D'&&last.func==='T')cad='✓ Cadencia auténtica (D→T)';else if(prev.func==='S'&&last.func==='D')cad='⬆ S→D (tensión en aumento)';else if(prev.func==='S'&&last.func==='T')cad='Cadencia plagal (S→T)';else if(prev.func==='D'&&last.func==='D')cad='⚡ D→D (tensión sostenida)';else if(prev.func==='D'&&last.func==='S')cad='⚠ Evasión — D resuelve a S';}
+  el.innerHTML=`Tensión promedio: <span style="color:#ddd">${avg.toFixed(1)}/10</span> &nbsp;|&nbsp; Pico: <span style="color:${maxC.color}">${maxC.name} (${maxT.toFixed(1)})</span> &nbsp;|&nbsp; Último: <span style="color:${last.color}">${last.name} — ${FN[last.func]}</span>${cad?'<br><span style="color:#888">'+cad+'</span>':''}`;
+}
+
+function renderChart(){
+  const svg=document.getElementById('chart-svg');if(!progression.length){svg.innerHTML='';return;}
+  const n=progression.length,PAD={top:22,right:16,bottom:50,left:36};
+  const totalW=Math.max(n*68+PAD.left+PAD.right,300),H=210;
+  const cW=totalW-PAD.left-PAD.right,cH=H-PAD.top-PAD.bottom;
+  const slot=cW/n,barW=Math.min(50,slot*0.62);
+  svg.setAttribute('viewBox',`0 0 ${totalW} ${H}`);svg.setAttribute('width',totalW);
+  const ty=t=>PAD.top+cH-(t/10)*cH,bx=i=>PAD.left+i*slot+slot/2;
+  let s='';
+  [[0,3,'#4ec9a010','Reposo'],[3,5.5,'#e0a03010','Movimiento'],[5.5,10,'#e05a5a10','Tensión']].forEach(([lo,hi,col,lbl])=>{const y1=ty(hi),y2=ty(lo);s+=`<rect x="${PAD.left}" y="${y1}" width="${cW}" height="${y2-y1}" fill="${col}"/>`;s+=`<text x="${PAD.left+4}" y="${y1+11}" font-size="9" fill="${col.slice(0,7)}55" font-family="sans-serif">${lbl}</text>`;});
+  for(let t=0;t<=10;t+=2){const y=ty(t);s+=`<line x1="${PAD.left}" y1="${y}" x2="${PAD.left+cW}" y2="${y}" stroke="#252525" stroke-width="1"/>`;s+=`<text x="${PAD.left-5}" y="${y+4}" font-size="10" fill="#444" text-anchor="end" font-family="sans-serif">${t}</text>`;}
+  s+=`<line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top+cH}" stroke="#333" stroke-width="1"/>`;
+  s+=`<line x1="${PAD.left}" y1="${PAD.top+cH}" x2="${PAD.left+cW}" y2="${PAD.top+cH}" stroke="#333" stroke-width="1"/>`;
+  progression.forEach((c,i)=>{const x=bx(i)-barW/2,barH=(c.tension/10)*cH,y=PAD.top+cH-barH;s+=`<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="3" fill="${c.color}33"/>`;s+=`<rect x="${x+2}" y="${y}" width="${barW-4}" height="${barH}" rx="2" fill="${c.color}"/>`;s+=`<text x="${bx(i)}" y="${y-5}" font-size="11" font-weight="700" fill="${c.color}" text-anchor="middle" font-family="sans-serif">${c.tension.toFixed(1)}</text>`;const lY=PAD.top+cH;s+=`<text x="${bx(i)}" y="${lY+13}" font-size="12" font-weight="700" fill="${c.color}" text-anchor="middle" font-family="sans-serif">${c.name}</text>`;s+=`<text x="${bx(i)}" y="${lY+25}" font-size="9" fill="#444" text-anchor="middle" font-family="sans-serif">${c.deg}</text>`;s+=`<text x="${bx(i)}" y="${lY+36}" font-size="9" fill="${c.color}88" text-anchor="middle" font-family="sans-serif">${c.func}</text>`;});
+  if(n>1){const pts=progression.map((c,i)=>({x:bx(i),y:ty(c.tension)}));let d=`M ${pts[0].x} ${pts[0].y}`;for(let i=0;i<pts.length-1;i++){const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];const cp1x=p1.x+(p2.x-p0.x)/6,cp1y=p1.y+(p2.y-p0.y)/6,cp2x=p2.x-(p3.x-p1.x)/6,cp2y=p2.y-(p3.y-p1.y)/6;d+=` C ${cp1x} ${cp1y},${cp2x} ${cp2y},${p2.x} ${p2.y}`;}s+=`<path d="${d}" fill="none" stroke="#ffffff18" stroke-width="2" stroke-linecap="round"/>`;pts.forEach(p=>s+=`<circle cx="${p.x}" cy="${p.y}" r="3" fill="#ffffff33"/>`);}
+  svg.innerHTML=s;
+}
+
+function updateAll(){updateProgDisplay();updateTabDisplay();updateInfoBar();renderChart();}
+document.getElementById('undo-btn').addEventListener('click',()=>{progression.pop();updateAll();});
+document.getElementById('clear-btn').addEventListener('click',()=>{progression=[];updateAll();});
+document.getElementById('key-sel').addEventListener('change',e=>{selKey=e.target.value;progression=progression.map(c=>({...c,name:chordName(selKey,selModeKey,c.chordIdx,selExt)}));buildPalette();updateAll();});
+document.getElementById('ext-sel').addEventListener('change',e=>{selExt=e.target.value;progression=progression.map(c=>({...c,name:chordName(selKey,selModeKey,c.chordIdx,selExt),tension:chordTension(selModeKey,c.chordIdx,selExt)}));buildPalette();updateAll();});
+document.getElementById('key-sel').innerHTML=rootNames.map(r=>`<option value="${r}"${r==='A'?' selected':''}>${r}</option>`).join('');
+buildTuneButtons();buildAll();
+</script>
+</body>
+</html>
