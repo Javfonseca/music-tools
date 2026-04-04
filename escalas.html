@@ -325,14 +325,14 @@ function renderPenta(){
   buildSVG(fDots,oDots,hasOpen,penta.color);
 
   // Position info
-  document.getElementById('info-notes').textContent=pos.info||'';
+  document.getElementById('info-notes').textContent=posData.info||'';
 
   // Update pos buttons
   document.querySelectorAll('#pos-btns .pb').forEach(b=>{
     const on=+b.dataset.v===selPos;
-    b.style.background=on?penta.color:'';
-    b.style.color=on?'#fff':'';
-    b.style.borderColor=on?'transparent':'';
+    b.style.background=on?penta.color:'transparent';
+    b.style.color=on?'#fff':'#888';
+    b.style.borderColor=on?'transparent':'#2a2a2a';
   });
 }
 
@@ -371,14 +371,19 @@ function render(){
   // Root buttons active state
   document.querySelectorAll('#root-btns .pb').forEach(b=>{
     const on=b.dataset.v===selRoot;
-    b.style.background=on?selScale.color:'';b.style.color=on?'#fff':'';b.style.borderColor=on?'transparent':'';
+    b.style.background=on?selScale.color:'';
+    b.style.color=on?'#fff':'';
+    b.style.borderColor=on?'transparent':'';
   });
 
-  // Scale buttons
+  // Scale + penta buttons — active=solid color, inactive=transparent
   document.querySelectorAll('.sb').forEach(b=>{
-    b.classList.toggle('on',b.dataset.id===selScale.id);
-    b.style.background=MODES.find(m=>m.id===b.dataset.id)?.color||
+    const active=b.dataset.id===selScale.id;
+    const color=MODES.find(m=>m.id===b.dataset.id)?.color||
       (b.dataset.id==='penta-m'?'#4a9eff':'#4caf50');
+    b.style.background=active?color:'';
+    b.style.opacity=active?'1':'0.4';
+    b.style.borderColor=active?'rgba(255,255,255,.5)':'transparent';
   });
 }
 
