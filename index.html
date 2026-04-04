@@ -13,34 +13,24 @@ body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd;overflow
 h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1.1;margin-bottom:.8rem}
 h1 span{background:linear-gradient(135deg,#4a9eff,#a07af0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .subtitle{font-size:15px;color:#666;max-width:460px;margin:0 auto 3rem;line-height:1.6}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:960px;margin:0 auto;padding:0 1.5rem 4rem}
-.card{background:#1a1a1a;border:1px solid #252525;border-radius:12px;padding:1.5rem;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:12px;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:760px;margin:0 auto;padding:0 1.5rem 4rem}
+.card{background:#1a1a1a;border:1px solid #252525;border-radius:12px;padding:2rem;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:14px;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:12px}
 .card:hover{transform:translateY(-2px)}
 .card:hover::before{opacity:1}
 .card-1::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(74,158,255,.06),transparent)}
-.card-2::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(76,201,160,.06),transparent)}
-.card-3::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(160,122,240,.06),transparent)}
-.card-4::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(224,122,64,.06),transparent)}
+.card-2::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(224,122,64,.06),transparent)}
 .card:hover.card-1{border-color:#4a9eff44}
-.card:hover.card-2{border-color:#4ec9a044}
-.card:hover.card-3{border-color:#a07af044}
-.card:hover.card-4{border-color:#e07c4044}
-.card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.ic-1{background:#4a9eff18}
-.ic-2{background:#4ec9a018}
-.ic-3{background:#a07af018}
-.ic-4{background:#e07c4018}
-.card-title{font-size:17px;font-weight:700;color:#fff}
-.card-desc{font-size:13px;color:#666;line-height:1.5}
+.card:hover.card-2{border-color:#e07c4044}
+.card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.ic-1{background:#4a9eff18}.ic-2{background:#e07c4018}
+.card-title{font-size:20px;font-weight:700;color:#fff}
+.card-desc{font-size:14px;color:#666;line-height:1.6}
 .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:8px}
-.tag{font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:.04em}
-.t-blue{background:#4a9eff18;color:#4a9eff}
-.t-green{background:#4ec9a018;color:#4ec9a0}
-.t-purple{background:#a07af018;color:#a07af0}
-.t-amber{background:#e07c4018;color:#e07c40}
+.tag{font-size:10px;padding:3px 9px;border-radius:10px;letter-spacing:.04em}
+.t-blue{background:#4a9eff18;color:#4a9eff}.t-amber{background:#e07c4018;color:#e07c40}
 .footer{text-align:center;padding:2rem;font-size:12px;color:#333;border-top:1px solid #1c1c1c}
-.arrow{margin-left:auto;color:#333;font-size:18px;transition:color .2s,transform .2s;align-self:flex-start}
+.arrow{margin-left:auto;color:#333;font-size:20px;transition:color .2s,transform .2s;align-self:flex-start}
 .card:hover .arrow{color:#666;transform:translateX(3px)}
 </style>
 </head>
@@ -53,56 +43,24 @@ h1 span{background:linear-gradient(135deg,#4a9eff,#a07af0);-webkit-background-cl
 <div class="grid">
   <a href="escalas.html" class="card card-1">
     <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div class="card-icon ic-1">🎼</div>
-      <span class="arrow">→</span>
+      <div class="card-icon ic-1">🎸</div><span class="arrow">→</span>
     </div>
-    <div class="card-title">Escalas Mayor y Menor</div>
-    <div class="card-desc">Cheat sheet interactiva de las 12 tonalidades. Mayor y menor natural con intervalos y grados.</div>
+    <div class="card-title">Escalas & Modos</div>
+    <div class="card-desc">Escalas mayor y menor, pentatónicas (menor y mayor) con las 5 posiciones, y los 7 modos en el mástil. Todo con selector de afinación compartido.</div>
     <div class="card-tags">
-      <span class="tag t-blue">12 tonalidades</span>
-      <span class="tag t-blue">Mayor</span>
-      <span class="tag t-blue">Menor</span>
+      <span class="tag t-blue">Escalas</span><span class="tag t-blue">Pentatónicas</span>
+      <span class="tag t-blue">7 modos</span><span class="tag t-blue">10 afinaciones</span>
     </div>
   </a>
-  <a href="pentatonica.html" class="card card-2">
+  <a href="compositor.html" class="card card-2">
     <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div class="card-icon ic-2">🎸</div>
-      <span class="arrow">→</span>
-    </div>
-    <div class="card-title">Escalas Pentatónicas</div>
-    <div class="card-desc">Las 5 posiciones de la pentatónica menor y mayor en el mástil. Transposición automática y afinaciones alternativas.</div>
-    <div class="card-tags">
-      <span class="tag t-green">5 posiciones</span>
-      <span class="tag t-green">Menor</span>
-      <span class="tag t-green">Mayor</span>
-      <span class="tag t-green">10 afinaciones</span>
-    </div>
-  </a>
-  <a href="modos.html" class="card card-3">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div class="card-icon ic-3">🎵</div>
-      <span class="arrow">→</span>
-    </div>
-    <div class="card-title">Modos</div>
-    <div class="card-desc">Los 7 modos griegos en el mástil. Con grados, notas por tonalidad, acordes diatónicos y navegación por el mástil.</div>
-    <div class="card-tags">
-      <span class="tag t-purple">7 modos</span>
-      <span class="tag t-purple">10 afinaciones</span>
-      <span class="tag t-purple">Cuerdas al aire</span>
-    </div>
-  </a>
-  <a href="compositor.html" class="card card-4">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div class="card-icon ic-4">🎹</div>
-      <span class="arrow">→</span>
+      <div class="card-icon ic-2">🎹</div><span class="arrow">→</span>
     </div>
     <div class="card-title">Compositor — Función Tonal</div>
-    <div class="card-desc">Construye progresiones de acordes y visualiza la tensión tonal en tiempo real. Incluye tablatura y soporte modal completo.</div>
+    <div class="card-desc">Construye progresiones de acordes y visualiza la tensión tonal en tiempo real. Incluye tablatura automática y soporte completo de modos y afinaciones.</div>
     <div class="card-tags">
-      <span class="tag t-amber">7 modos</span>
-      <span class="tag t-amber">Tensión tonal</span>
-      <span class="tag t-amber">Tablatura</span>
-      <span class="tag t-amber">10 afinaciones</span>
+      <span class="tag t-amber">7 modos</span><span class="tag t-amber">Tensión tonal</span>
+      <span class="tag t-amber">Tablatura</span><span class="tag t-amber">10 afinaciones</span>
     </div>
   </a>
 </div>

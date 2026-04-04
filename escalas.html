@@ -3,113 +3,444 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escalas — Music Theory Tools</title>
+<title>Escalas & Modos — Music Theory Tools</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd}
-.header{padding:.9rem 1.5rem;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1e1e1e}
-.back{color:#555;text-decoration:none;font-size:13px}
-.back:hover{color:#aaa}
+
+.header{padding:.9rem 1.5rem;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1e1e1e;position:sticky;top:0;background:#111;z-index:100}
+.back{color:#555;text-decoration:none;font-size:13px}.back:hover{color:#aaa}
 .page-title{color:#ddd;font-size:15px;font-weight:600}
-.container{max-width:960px;margin:0 auto;padding:1.5rem}
-/* Widget styles */
-.cs-root{padding:1rem 0;font-family:sans-serif}
-.cs-controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:.9rem}
-.cs-btn{font-size:13px;padding:5px 10px;border:0.5px solid #444;border-radius:8px;background:transparent;color:#ccc;cursor:pointer}
-.cs-btn.active{background:#E6F1FB;color:#185FA5;border-color:transparent}
-.cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.cs-card{background:#1a1a1a;border:0.5px solid #2a2a2a;border-radius:12px;padding:1rem 1.25rem}
-.cs-label{font-size:12px;color:#666;margin-bottom:8px}
-.cs-title{font-size:15px;font-weight:500;margin-bottom:10px;color:#ddd}
-.cs-notes{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
-.cs-note{font-size:13px;font-weight:500;padding:4px 8px;border-radius:8px}
-.cs-note.root{background:#E6F1FB;color:#185FA5}
-.cs-note.reg{background:#222;color:#ccc}
-.cs-row{display:flex;gap:6px;font-size:12px;color:#666;margin-top:4px;align-items:center}
-.cs-deg{width:22px;text-align:center}
-.cs-interval{font-size:11px;padding:2px 5px;border-radius:4px;background:#222;color:#666}
-.cs-formula{font-size:12px;color:#555;margin-top:8px;padding-top:8px;border-top:0.5px solid #252525}
-.cs-section{font-size:11px;font-weight:500;color:#444;letter-spacing:.05em;margin-bottom:6px}
-.cs-table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:12px}
-.cs-table th{text-align:left;padding:5px 8px;color:#555;font-weight:500;border-bottom:0.5px solid #252525}
-.cs-table td{padding:5px 8px;border-bottom:0.5px solid #1e1e1e;color:#ccc}
-.cs-table tr:last-child td{border-bottom:none}
-.cs-root-cell{font-weight:500;color:#4a9eff}
-@media(max-width:500px){.cs-grid{grid-template-columns:1fr}}
+
+.tune-bar{background:#141414;border-bottom:1px solid #1e1e1e;padding:.6rem 1.5rem;display:flex;flex-wrap:wrap;align-items:center;gap:8px;position:sticky;top:45px;z-index:90}
+.tune-label{font-size:10px;color:#444;letter-spacing:.09em;flex-shrink:0}
+.tb{font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid #2a2a2a;cursor:pointer;color:#777;background:transparent;white-space:nowrap}
+.tb:hover{border-color:#555;color:#ccc}
+.tb.on{background:#2a2a2a;color:#fff;border-color:#777}
+
+.container{max-width:960px;margin:0 auto;padding:1.2rem 1.5rem}
+
+/* Tónica */
+.psec{font-size:10px;color:#444;letter-spacing:.09em;margin-bottom:5px}
+.prow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.9rem}
+.pb{font-size:12px;padding:4px 10px;border:1px solid #2a2a2a;border-radius:7px;background:transparent;color:#777;cursor:pointer;white-space:nowrap}
+.pb:hover{border-color:#555;color:#ccc}
+
+/* Scale selector */
+.scale-groups{margin-bottom:.9rem}
+.scale-group{margin-bottom:.5rem}
+.scale-group-label{font-size:10px;color:#444;letter-spacing:.09em;margin-bottom:5px}
+.scale-btns{display:flex;flex-wrap:wrap;gap:6px}
+.sb{font-size:11px;padding:5px 11px;border-radius:7px;border:2px solid transparent;cursor:pointer;color:#fff;font-weight:600;opacity:.42;line-height:1.3;transition:opacity .14s}
+.sb:hover{opacity:.72}
+.sb.on{opacity:1;border-color:rgba(255,255,255,.28)}
+
+/* Info card */
+.info-card{padding:8px 12px;background:#161616;border-radius:8px;margin-bottom:.9rem;border-left:3px solid #333;transition:border-color .2s}
+.info-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.info-notes{font-size:12px;color:#bbb;margin-bottom:3px}
+.info-desc{font-size:11px;color:#555;line-height:1.5}
+
+/* Position selector (pentatonic) */
+.pos-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.8rem}
+
+/* Navigation (modes) */
+.nav-row{display:flex;align-items:center;gap:10px;margin-bottom:.8rem}
+.nav-btn{font-size:16px;width:32px;height:32px;border:1px solid #2a2a2a;border-radius:7px;background:#1a1a1a;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
+.nav-btn:hover{background:#222;border-color:#555}
+.nav-btn:disabled{opacity:.2;cursor:default}
+.nav-label{font-size:12px;color:#666;min-width:88px;text-align:center}
+.pips{display:flex;gap:5px;align-items:center}
+.pip{width:9px;height:9px;border-radius:50%;background:#222;border:1px solid #333;cursor:pointer}
+.pip:hover{border-color:#777}
+.pip.on{background:#ccc;border-color:#ccc}
+
+/* Fretboard */
+#fretboard{overflow-x:auto;margin-top:2px}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12px;color:#777;align-items:center}
+.leg-dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0}
 </style>
 </head>
 <body>
+
 <div class="header">
   <a class="back" href="index.html">← Herramientas</a>
-  <span class="page-title">Escalas Mayor y Menor</span>
+  <span class="page-title">Escalas & Modos</span>
 </div>
+
+<div class="tune-bar">
+  <span class="tune-label">AFINACIÓN</span>
+  <div id="tune-btns" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+</div>
+
 <div class="container">
-<div class="cs-root">
-  <div class="cs-section">TÓNICA</div>
-  <div class="cs-controls" id="roots"></div>
-  <div class="cs-grid" id="cards"></div>
-  <table class="cs-table" id="ref-table">
-    <thead><tr><th>Tónica</th><th>Mayor</th><th>Menor natural</th></tr></thead>
-    <tbody id="ref-body"></tbody>
-  </table>
-</div>
-</div>
-<script>
-const chromaticSharp=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const chromaticFlat=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
-const useFlats={'F':true,'Bb':true,'Eb':true,'Ab':true,'Db':true,'Gb':true};
-function getChromatic(root){return useFlats[root]?chromaticFlat:chromaticSharp;}
-function buildScale(root,formula){
-  const ch=getChromatic(root),start=ch.indexOf(root);
-  let pos=0,notes=[];
-  for(let i=0;i<formula.length;i++){notes.push(ch[(start+pos)%12]);pos+=formula[i];}
-  return notes;
-}
-const majorFormula=[2,2,1,2,2,2,1];
-const minorFormula=[2,1,2,2,1,2,2];
-const majorIntervals=['R','M2','M3','P4','P5','M6','M7'];
-const minorIntervals=['R','M2','m3','P4','P5','m6','m7'];
-const majorDegrees=['1','2','3','4','5','6','7'];
-const minorDegrees=['1','2','b3','4','5','b6','b7'];
-const roots=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
-let selected='A';
-function render(){
-  const maj=buildScale(selected,majorFormula);
-  const min=buildScale(selected,minorFormula);
-  document.getElementById('cards').innerHTML=`
-    <div class="cs-card">
-      <div class="cs-label">Mayor</div>
-      <div class="cs-title">${selected} mayor</div>
-      <div class="cs-notes">${maj.map((n,i)=>`<span class="cs-note ${i===0?'root':'reg'}">${n}</span>`).join('')}</div>
-      <div class="cs-row">${majorDegrees.map(d=>`<span class="cs-deg">${d}</span>`).join('')}</div>
-      <div class="cs-row" style="margin-top:2px">${majorIntervals.map(v=>`<span class="cs-interval">${v}</span>`).join('')}</div>
-      <div class="cs-formula">Fórmula: T T s T T T s &nbsp;|&nbsp; 2-2-1-2-2-2-1</div>
+
+  <div class="psec">TÓNICA</div>
+  <div class="prow" id="root-btns"></div>
+
+  <div class="scale-groups">
+    <div class="scale-group">
+      <div class="scale-group-label">MODOS</div>
+      <div class="scale-btns" id="mode-btns"></div>
     </div>
-    <div class="cs-card">
-      <div class="cs-label">Menor natural</div>
-      <div class="cs-title">${selected} menor</div>
-      <div class="cs-notes">${min.map((n,i)=>`<span class="cs-note ${i===0?'root':'reg'}">${n}</span>`).join('')}</div>
-      <div class="cs-row">${minorDegrees.map(d=>`<span class="cs-deg">${d}</span>`).join('')}</div>
-      <div class="cs-row" style="margin-top:2px">${minorIntervals.map(v=>`<span class="cs-interval">${v}</span>`).join('')}</div>
-      <div class="cs-formula">Fórmula: T s T T s T T &nbsp;|&nbsp; 2-1-2-2-1-2-2</div>
-    </div>`;
-  document.querySelectorAll('.cs-btn').forEach(b=>b.classList.toggle('active',b.dataset.root===selected));
+    <div class="scale-group">
+      <div class="scale-group-label">PENTATÓNICAS</div>
+      <div class="scale-btns" id="penta-btns"></div>
+    </div>
+  </div>
+
+  <div class="info-card" id="info-card">
+    <div class="info-name" id="info-name"></div>
+    <div class="info-notes" id="info-notes"></div>
+    <div class="info-desc" id="info-desc"></div>
+  </div>
+
+  <!-- Shown for pentatonics -->
+  <div id="pos-section" style="display:none">
+    <div class="psec">POSICIÓN</div>
+    <div class="pos-row" id="pos-btns"></div>
+  </div>
+
+  <!-- Shown for modes -->
+  <div id="nav-section" style="display:none">
+    <div class="nav-row">
+      <button class="nav-btn" id="nav-prev">&#8592;</button>
+      <div class="pips" id="nav-pips"></div>
+      <button class="nav-btn" id="nav-next">&#8594;</button>
+      <span class="nav-label" id="nav-label"></span>
+    </div>
+  </div>
+
+  <div id="fretboard"></div>
+
+  <div class="legend" id="legend"></div>
+
+</div>
+
+<script>
+// ═══════════ DATA ═══════════
+const chrFlat=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const chrSharp=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const NOTES_F=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const useFl={F:1,Bb:1,Eb:1,Ab:1,Db:1,Gb:1};
+const ROOT_NAMES=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const ROOT_SEMI={C:0,'C#':1,D:2,Eb:3,E:4,F:5,'F#':6,G:7,Ab:8,A:9,Bb:10,B:11};
+
+const TUNINGS=[
+  {name:'Standard',s:[4,9,2,7,11,4]},{name:'Eb',s:[3,8,1,6,10,3]},
+  {name:'D',s:[2,7,0,5,9,2]},{name:'Drop D',s:[2,9,2,7,11,4]},
+  {name:'Drop C',s:[0,7,0,5,9,2]},{name:'Drop B',s:[11,6,11,4,8,1]},
+  {name:'Open G',s:[2,7,2,7,11,2]},{name:'Open D',s:[2,9,2,6,9,2]},
+  {name:'Open E',s:[4,11,4,8,11,4]},{name:'DADGAD',s:[2,9,2,7,9,2]},
+];
+
+const MODES=[
+  {id:'ionian',   name:'Ionian',    aka:'mayor',    color:'#4a9eff',
+   semis:[0,2,4,5,7,9,11], degs:{0:'R',2:'2',4:'3',5:'4',7:'5',9:'6',11:'7'},
+   desc:'Modo mayor estándar. Brillante y estable.',
+   chords:'I△ – IIm – IIIm – IV△ – V△ – VIm – VIIdim'},
+  {id:'dorian',   name:'Dorian',    aka:'',         color:'#a07af0',
+   semis:[0,2,3,5,7,9,10], degs:{0:'R',2:'2',3:'b3',5:'4',7:'5',9:'6',10:'b7'},
+   desc:'Menor con 6ta mayor. Jazz, funk, rock.',
+   chords:'Im – IIdim – III△ – IVm – Vm – VI△ – VII△'},
+  {id:'phrygian', name:'Phrygian',  aka:'',         color:'#e05a5a',
+   semis:[0,1,3,5,7,8,10], degs:{0:'R',1:'b2',3:'b3',5:'4',7:'5',8:'b6',10:'b7'},
+   desc:'Menor con b2. Oscuro y flamenco. Metal.',
+   chords:'Im – II△ – III△ – IVm – Vdim – VI△ – VIIm'},
+  {id:'lydian',   name:'Lydian',    aka:'',         color:'#4ec9a0',
+   semis:[0,2,4,6,7,9,11], degs:{0:'R',2:'2',4:'3',6:'#4',7:'5',9:'6',11:'7'},
+   desc:'Mayor con #4. Etéreo. Bandas sonoras.',
+   chords:'I△ – II△ – IIIm – #IVdim – V△ – VIm – VIIm'},
+  {id:'mixolydian',name:'Mixolydian',aka:'',        color:'#e07c40',
+   semis:[0,2,4,5,7,9,10], degs:{0:'R',2:'2',4:'3',5:'4',7:'5',9:'6',10:'b7'},
+   desc:'Mayor con b7. Rock, blues, dominante.',
+   chords:'I△ – IIm – IIIdim – IV△ – Vm – VIm – VII△'},
+  {id:'aeolian',  name:'Aeolian',   aka:'menor nat.',color:'#7a9fc0',
+   semis:[0,2,3,5,7,8,10], degs:{0:'R',2:'2',3:'b3',5:'4',7:'5',8:'b6',10:'b7'},
+   desc:'Modo menor natural. Oscuro y melancólico.',
+   chords:'Im – IIdim – III△ – IVm – Vm – VI△ – VII△'},
+  {id:'locrian',  name:'Locrian',   aka:'',         color:'#c06090',
+   semis:[0,1,3,5,6,8,10], degs:{0:'R',1:'b2',3:'b3',5:'4',6:'b5',8:'b6',10:'b7'},
+   desc:'b2 y b5. Oscuro e inestable. Metal extremo.',
+   chords:'Idim – II△ – IIIm – IVm – V△ – VI△ – VIIm'},
+];
+
+// Standard tuning open string semitones [str6..str1]
+const STD_OPEN=[4,9,2,7,11,4];
+
+// Pentatonic positions (base: Am=9 for minor, A=9 for major)
+const PENTA_MINOR={
+  id:'penta-m', name:'Penta Menor', aka:'', color:'#4a9eff', type:'penta',
+  degs:{0:'R',3:'b3',5:'4',7:'5',10:'b7'},
+  desc:'1 – b3 – 4 – 5 – b7. La escala más usada en rock, blues y metal.',
+  positions:[
+    {l:'1',frets:{6:[5,8],5:[5,7],4:[5,7],3:[5,7],2:[5,8],1:[5,8]},info:'Raíz en cuerdas 6, 4 y 1. La posición más común.'},
+    {l:'2',frets:{6:[8,10],5:[7,10],4:[7,10],3:[7,9],2:[8,10],1:[8,10]},info:'Raíz en cuerdas 4 y 2. Conecta pos. 1 hacia el agudo.'},
+    {l:'3',frets:{6:[10,12],5:[10,12],4:[10,12],3:[9,12],2:[10,13],1:[10,12]},info:'Raíz en cuerdas 5 y 2. Zona media del mástil.'},
+    {l:'4',frets:{6:[12,15],5:[12,15],4:[12,14],3:[12,14],2:[13,15],1:[12,15]},info:'Raíz en cuerdas 5 y 3. Espejo de la pos. 2.'},
+    {l:'5',frets:{6:[3,5],5:[3,5],4:[2,5],3:[2,5],2:[3,5],1:[3,5]},info:'Raíz en cuerdas 6, 3 y 1. Cierra el ciclo debajo de la pos. 1.'},
+  ],
+};
+const PENTA_MAJOR={
+  id:'penta-M', name:'Penta Mayor', aka:'', color:'#4caf50', type:'penta',
+  degs:{0:'R',2:'M2',4:'M3',7:'5',9:'M6'},
+  desc:'1 – 2 – 3 – 5 – 6. Relativa mayor de la pentatónica menor.',
+  positions:[
+    {l:'1',frets:{6:[5,7],5:[4,7],4:[4,7],3:[4,6],2:[5,7],1:[5,7]},info:'Raíz en cuerdas 6, 4 y 1. Posición de referencia.'},
+    {l:'2',frets:{6:[7,9],5:[7,9],4:[7,9],3:[6,9],2:[7,10],1:[7,9]},info:'Raíz en cuerdas 4 y 2.'},
+    {l:'3',frets:{6:[9,12],5:[9,12],4:[9,11],3:[9,11],2:[10,12],1:[9,12]},info:'Raíz en cuerdas 5 y 2. Zona media del mástil.'},
+    {l:'4',frets:{6:[12,14],5:[12,14],4:[11,14],3:[11,14],2:[12,14],1:[12,14]},info:'Raíz en cuerdas 5 y 3.'},
+    {l:'5',frets:{6:[2,5],5:[2,4],4:[2,4],3:[2,4],2:[2,5],1:[2,5]},info:'Raíz en cuerdas 6, 3 y 1. Cierra el ciclo.'},
+  ],
+};
+
+// ═══════════ STATE ═══════════
+let selTune=0, selRoot='A', selScale=MODES[5], selPos=0, winStart=5;
+const WIN=5, MAX_FRET=12;
+
+function tuning(){return TUNINGS[selTune].s;}
+function strLabel(idx){// idx 0=str6..5=str1
+  const n=NOTES_F[((tuning()[idx]%12)+12)%12];
+  return idx===5?n.toLowerCase():n;
 }
-function buildRefTable(){
-  document.getElementById('ref-body').innerHTML=roots.map(r=>{
-    const maj=buildScale(r,majorFormula).join(' – ');
-    const min=buildScale(r,minorFormula).join(' – ');
-    return `<tr><td class="cs-root-cell">${r}</td><td>${maj}</td><td>${min}</td></tr>`;
-  }).join('');
+function getOS(){const t=tuning(),OS={};for(let s=1;s<=6;s++)OS[s]=((t[6-s]%12)+12)%12;return OS;}
+
+// ═══════════ FRETBOARD SVG ═══════════
+function buildSVG(frettedDots, openDots, hasOpen, color){
+  const allF=frettedDots.map(d=>d.f);
+  if(!allF.length&&!openDots.length){document.getElementById('fretboard').innerHTML='';return;}
+  const minF=allF.length?Math.min(...allF):1;
+  const maxF=allF.length?Math.max(...allF):5;
+  const nF=maxF-minF+1;
+
+  const FW=68,SS=36,TP=18,DR=13;
+  const FNUM=DR+18,MARK=DR+36,BP=MARK+14;
+  const SLBL=28,OPEN_W=hasOpen?42:0,LP=SLBL+OPEN_W,RP=16;
+  const W=nF*FW+LP+RP, H=5*SS+TP+BP;
+  const fx=f=>LP+(f-minF+0.5)*FW;
+  const sy=s=>TP+(s-1)*SS;
+  const lastY=sy(6);
+
+  let sv=`<svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;max-width:${W}px">`;
+
+  // Nut
+  sv+=`<line x1="${LP}" y1="${TP-4}" x2="${LP}" y2="${lastY+DR+2}" stroke="#666" stroke-width="3"/>`;
+  if(hasOpen) sv+=`<text x="${SLBL+OPEN_W/2}" y="${TP-9}" font-size="10" fill="#333" text-anchor="middle" font-family="sans-serif">0</text>`;
+
+  // Fret lines
+  for(let i=1;i<=nF;i++) sv+=`<line x1="${LP+i*FW}" y1="${TP}" x2="${LP+i*FW}" y2="${lastY+DR+2}" stroke="#1e1e1e" stroke-width="1"/>`;
+
+  // Strings + labels
+  for(let s=1;s<=6;s++){
+    const y=sy(s),sw=s===6?2.5:s===5?2:s===4?1.6:s===3?1.2:s===2?0.9:0.7;
+    sv+=`<line x1="${hasOpen?SLBL:LP}" y1="${y}" x2="${LP+nF*FW}" y2="${y}" stroke="#333" stroke-width="${sw}"/>`;
+    sv+=`<text x="${SLBL-9}" y="${y+5}" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" font-family="sans-serif">${strLabel(6-s)}</text>`;
+  }
+
+  // Fret numbers + inlays
+  for(let f=minF;f<=maxF;f++){
+    const x=fx(f),isMark=[3,5,7,9,12,15,17].includes(f);
+    sv+=`<text x="${x}" y="${lastY+FNUM}" font-size="13" font-weight="${isMark?700:400}" fill="${isMark?'#ccc':'#555'}" text-anchor="middle" font-family="sans-serif">${f}</text>`;
+    if(isMark){(f===12?[x-6,x+6]:[x]).forEach(cx=>sv+=`<circle cx="${cx}" cy="${lastY+MARK}" r="3" fill="#252525"/>`);}
+  }
+
+  // Fretted dots
+  frettedDots.forEach(({s,f,iv,color:c,deg})=>{
+    const x=fx(f),y=sy(s),isR=iv===0;
+    sv+=`<circle cx="${x}" cy="${y}" r="${DR}" fill="${isR?c:'#444'}"/>`;
+    sv+=`<text x="${x}" y="${y+4}" font-size="${deg.length>1?9:11}" fill="#fff" text-anchor="middle" font-family="sans-serif" font-weight="600">${deg}</text>`;
+  });
+
+  // Open string dots
+  const ox=SLBL+OPEN_W/2;
+  openDots.forEach(({s,iv,color:c,deg})=>{
+    const y=sy(s),isR=iv===0;
+    if(isR){
+      sv+=`<circle cx="${ox}" cy="${y}" r="${DR}" fill="${c}"/>`;
+      sv+=`<text x="${ox}" y="${y+4}" font-size="${deg.length>1?9:11}" fill="#fff" text-anchor="middle" font-family="sans-serif" font-weight="600">${deg}</text>`;
+    } else {
+      sv+=`<circle cx="${ox}" cy="${y}" r="${DR}" fill="#111" stroke="#555" stroke-width="1.5"/>`;
+      sv+=`<text x="${ox}" y="${y+4}" font-size="${deg.length>1?9:11}" fill="#aaa" text-anchor="middle" font-family="sans-serif" font-weight="600">${deg}</text>`;
+    }
+  });
+
+  sv+=`</svg>`;
+  document.getElementById('fretboard').innerHTML=sv;
 }
-const rootsEl=document.getElementById('roots');
-roots.forEach(r=>{
-  const b=document.createElement('button');
-  b.className='cs-btn';b.dataset.root=r;b.textContent=r;
-  b.onclick=()=>{selected=r;render();};
-  rootsEl.appendChild(b);
+
+// ═══════════ RENDER MODE ═══════════
+function moPositions(){const m=MAX_FRET-WIN+1;const a=[];for(let i=0;i<=m;i+=WIN)a.push(i);if(a[a.length-1]!==m)a.push(m);return a;}
+function snapWin(){
+  const OS=getOS(),rs=ROOT_SEMI[selRoot],rf=((rs-OS[6])+12)%12;
+  const pos=moPositions();let best=pos[0];for(const p of pos)if(rf>=p)best=p;winStart=best;
+}
+
+function renderMode(){
+  const mode=selScale, rs=ROOT_SEMI[selRoot], OS=getOS();
+  const lo=winStart,hi=winStart+WIN-1,hasOpen=(lo===0);
+  const fDots=[],oDots=[];
+  for(let s=1;s<=6;s++){
+    for(let f=hasOpen?1:lo;f<=hi;f++){
+      const iv=((OS[s]+f)%12-rs+12)%12;
+      if(mode.semis.includes(iv)) fDots.push({s,f,iv,color:mode.color,deg:mode.degs[iv]||'?'});
+    }
+    if(hasOpen){const iv=(OS[s]%12-rs+12)%12;if(mode.semis.includes(iv))oDots.push({s,iv,color:mode.color,deg:mode.degs[iv]||'?'});}
+  }
+  const seen=new Set();const oDotD=oDots.filter(d=>{if(seen.has(d.s))return false;seen.add(d.s);return true;});
+  buildSVG(fDots,oDotD,hasOpen,mode.color);
+
+  // Nav
+  const pos=moPositions(),idx=pos.indexOf(winStart);
+  document.getElementById('nav-label').textContent=`Trastes ${winStart}–${winStart+WIN-1}`;
+  document.getElementById('nav-prev').disabled=(idx<=0);
+  document.getElementById('nav-next').disabled=(idx>=pos.length-1);
+  const pipsEl=document.getElementById('nav-pips');pipsEl.innerHTML='';
+  pos.forEach((p,i)=>{const pip=document.createElement('div');pip.className='pip'+(i===idx?' on':'');pip.addEventListener('click',()=>{winStart=p;renderMode();});pipsEl.appendChild(pip);});
+}
+
+// ═══════════ RENDER PENTA ═══════════
+function renderPenta(){
+  const penta=selScale,rs=ROOT_SEMI[selRoot],OS=getOS();
+  const posData=penta.positions[selPos];
+  const shift=(rs-9+12)%12;
+  const fDots=[];
+  for(let s=1;s<=6;s++){
+    const stdO=STD_OPEN[6-s]; // standard open note for this string
+    const curO=OS[s];         // current tuning open note
+    for(const baseF of posData.frets[s]){
+      // Pitch this fret produces in standard tuning (transposed to current root)
+      const targetNote=(stdO+baseF+shift)%12;
+      // Fret that produces the same pitch in current tuning
+      let f=((targetNote-curO)+12)%12;
+      if(f===0) f=12; // avoid open string for fretted positions
+      const iv=(targetNote-rs+12)%12;
+      if(penta.semis.includes(iv)){
+        fDots.push({s,f,iv,color:penta.color,deg:penta.degs[iv]||'?'});
+      }
+    }
+  }
+  buildSVG(fDots,[],false,penta.color);
+
+  // Position info
+  document.getElementById('info-notes').textContent=pos.info||'';
+
+  // Update pos buttons
+  document.querySelectorAll('#pos-btns .pb').forEach(b=>{
+    const on=+b.dataset.v===selPos;
+    b.style.background=on?penta.color:'';
+    b.style.color=on?'#fff':'';
+    b.style.borderColor=on?'transparent':'';
+  });
+}
+
+// ═══════════ RENDER (dispatch) ═══════════
+function render(){
+  const isMo=selScale.type!=='penta';
+  document.getElementById('nav-section').style.display=isMo?'block':'none';
+  document.getElementById('pos-section').style.display=isMo?'none':'block';
+
+  // Info card
+  const ic=document.getElementById('info-card');
+  ic.style.borderLeftColor=selScale.color;
+  document.getElementById('info-name').style.color=selScale.color;
+  document.getElementById('info-name').textContent=`${selRoot} ${selScale.name}${selScale.aka?' ('+selScale.aka+')':''}`;
+
+  if(isMo){
+    const mode=selScale;
+    const chr=useFl[selRoot]?chrFlat:chrSharp;
+    const notes=mode.semis.map(s=>chr[(ROOT_SEMI[selRoot]+s)%12]);
+    document.getElementById('info-notes').textContent='Notas: '+notes.join(' – ');
+    document.getElementById('info-desc').innerHTML=mode.desc+'<br><span style="color:#3a3a3a">'+mode.chords+'</span>';
+    renderMode();
+  } else {
+    document.getElementById('info-notes').textContent=''; // updated by renderPenta
+    document.getElementById('info-desc').textContent=selScale.desc;
+    renderPenta();
+  }
+
+  // Legend
+  document.getElementById('legend').innerHTML=`
+    <span style="display:flex;align-items:center;gap:5px"><span class="leg-dot" style="background:${selScale.color}"></span>Tónica (R)</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="leg-dot" style="background:#444"></span>Escala</span>
+    ${!isMo?'':('<span style="display:flex;align-items:center;gap:5px"><span class="leg-dot" style="background:#111;border:1.5px solid #555"></span>Al aire</span>')}
+  `;
+
+  // Root buttons active state
+  document.querySelectorAll('#root-btns .pb').forEach(b=>{
+    const on=b.dataset.v===selRoot;
+    b.style.background=on?selScale.color:'';b.style.color=on?'#fff':'';b.style.borderColor=on?'transparent':'';
+  });
+
+  // Scale buttons
+  document.querySelectorAll('.sb').forEach(b=>{
+    b.classList.toggle('on',b.dataset.id===selScale.id);
+    b.style.background=MODES.find(m=>m.id===b.dataset.id)?.color||
+      (b.dataset.id==='penta-m'?'#4a9eff':'#4caf50');
+  });
+}
+
+// ═══════════ BUILD UI ═══════════
+function buildTune(){
+  const el=document.getElementById('tune-btns');el.innerHTML='';
+  TUNINGS.forEach((t,i)=>{
+    const b=document.createElement('button');b.className='tb'+(i===selTune?' on':'');b.textContent=t.name;
+    b.addEventListener('click',()=>{selTune=i;buildTune();render();});el.appendChild(b);
+  });
+}
+
+function buildRoots(){
+  const el=document.getElementById('root-btns');
+  el.innerHTML=ROOT_NAMES.map(r=>`<button class="pb" data-v="${r}">${r}</button>`).join('');
+  el.querySelectorAll('.pb').forEach(b=>b.addEventListener('click',()=>{
+    selRoot=b.dataset.v;
+    if(selScale.type!=='penta') snapWin();
+    render();
+  }));
+}
+
+function buildScaleButtons(){
+  // Modes
+  const mel=document.getElementById('mode-btns');
+  mel.innerHTML=MODES.map(m=>`<button class="sb" data-id="${m.id}" style="background:${m.color}">${m.name}${m.aka?'<br><span style="font-size:9px;font-weight:400;opacity:.75">'+m.aka+'</span>':''}</button>`).join('');
+  mel.querySelectorAll('.sb').forEach(b=>b.addEventListener('click',()=>{
+    selScale=MODES.find(m=>m.id===b.dataset.id);snapWin();render();
+  }));
+
+  // Pentatonics
+  const pel=document.getElementById('penta-btns');
+  pel.innerHTML=`
+    <button class="sb" data-id="penta-m" style="background:#4a9eff">Menor</button>
+    <button class="sb" data-id="penta-M" style="background:#4caf50">Mayor</button>`;
+  pel.querySelectorAll('.sb').forEach(b=>b.addEventListener('click',()=>{
+    selScale=b.dataset.id==='penta-m'?PENTA_MINOR:PENTA_MAJOR;
+    selPos=0;buildPosButtons();render();
+  }));
+}
+
+function buildPosButtons(){
+  const penta=selScale.type==='penta'?selScale:PENTA_MINOR;
+  const el=document.getElementById('pos-btns');
+  el.innerHTML=penta.positions.map((p,i)=>`<button class="pb" data-v="${i}">Pos. ${p.l}</button>`).join('');
+  el.querySelectorAll('.pb').forEach(b=>b.addEventListener('click',()=>{selPos=+b.dataset.v;renderPenta();}));
+}
+
+// Navigations
+document.getElementById('nav-prev').addEventListener('click',()=>{
+  const pos=moPositions(),idx=pos.indexOf(winStart);if(idx>0){winStart=pos[idx-1];renderMode();}
 });
-render();buildRefTable();
+document.getElementById('nav-next').addEventListener('click',()=>{
+  const pos=moPositions(),idx=pos.indexOf(winStart);if(idx<pos.length-1){winStart=pos[idx+1];renderMode();}
+});
+
+// ═══════════ INIT ═══════════
+buildTune();
+buildRoots();
+buildScaleButtons();
+buildPosButtons();
+snapWin();
+render();
 </script>
 </body>
 </html>
