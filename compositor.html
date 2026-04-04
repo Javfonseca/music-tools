@@ -138,8 +138,8 @@ function computeVoicing(rs,q,tuning){
 }
 
 function drawDiag(voicing,name,color,chRootSemi,tuning){
-  const W=108,H=152;
-  const SX=[13,27,41,55,69,83];
+  const W=124,H=152;
+  const SX=[29,43,57,71,85,99];
   const GY=34,FH=22,NF=4,DR=7;
   const fretted=voicing.filter(f=>f>0);
   const minF=fretted.length?Math.min(...fretted):1,maxF=fretted.length?Math.max(...fretted):1;
@@ -149,7 +149,7 @@ function drawDiag(voicing,name,color,chRootSemi,tuning){
   const disp=name.length>9?name.replace('dim','°').replace('maj','M'):name;
   s+=`<text x="${W/2}" y="16" font-size="15" font-weight="700" fill="${color}" text-anchor="middle" font-family="sans-serif">${disp}</text>`;
   if(showNut)s+=`<rect x="${SX[0]-4}" y="${GY-5}" width="${SX[5]-SX[0]+8}" height="5" rx="2.5" fill="#aaa"/>`;
-  else s+=`<text x="${SX[5]+8}" y="${GY+12}" font-size="11" fill="#888" font-family="sans-serif">${ds}</text>`;
+  else s+=`<text x="${SX[0]-14}" y="${GY+12}" font-size="11" fill="#aaa" text-anchor="middle" font-family="sans-serif" font-weight="600">${ds}</text>`;
   for(let i=0;i<=NF;i++)s+=`<line x1="${SX[0]-3}" y1="${GY+i*FH}" x2="${SX[5]+3}" y2="${GY+i*FH}" stroke="#333" stroke-width="1.5"/>`;
   SX.forEach(x=>s+=`<line x1="${x}" y1="${GY}" x2="${x}" y2="${GY+NF*FH}" stroke="#333" stroke-width="1.5"/>`);
   voicing.forEach((f,i)=>{const x=SX[i];if(f===-1)s+=`<text x="${x}" y="${GY-9}" font-size="13" fill="#666" text-anchor="middle" font-family="sans-serif" font-weight="500">x</text>`;else if(f===0)s+=`<circle cx="${x}" cy="${GY-10}" r="5" fill="none" stroke="#888" stroke-width="1.8"/>`;});
