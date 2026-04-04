@@ -307,23 +307,25 @@ function renderPenta(){
   const penta=selScale,rs=ROOT_SEMI[selRoot],OS=getOS();
   const posData=penta.positions[selPos];
   const shift=(rs-9+12)%12;
-  const fDots=[];
+  const fDots=[],oDots=[];
   for(let s=1;s<=6;s++){
     const stdO=STD_OPEN[6-s]; // standard open note for this string
     const curO=OS[s];         // current tuning open note
     for(const baseF of posData.frets[s]){
-      // Pitch this fret produces in standard tuning (transposed to current root)
       const targetNote=(stdO+baseF+shift)%12;
-      // Fret that produces the same pitch in current tuning
       let f=((targetNote-curO)+12)%12;
-      if(f===0) f=12; // avoid open string for fretted positions
+      // Standard-tuned string: f=0 means the position wrapped to fret 12
+      // Retuned string: f=0 is a genuine open string
+      if(f===0 && curO===stdO) f=12;
       const iv=(targetNote-rs+12)%12;
       if(penta.semis.includes(iv)){
-        fDots.push({s,f,iv,color:penta.color,deg:penta.degs[iv]||'?'});
+        if(f===0) oDots.push({s,iv,color:penta.color,deg:penta.degs[iv]||'?'});
+        else fDots.push({s,f,iv,color:penta.color,deg:penta.degs[iv]||'?'});
       }
     }
   }
-  buildSVG(fDots,[],false,penta.color);
+  const hasOpen=oDots.length>0;
+  buildSVG(fDots,oDots,hasOpen,penta.color);
 
   // Position info
   document.getElementById('info-notes').textContent=pos.info||'';
