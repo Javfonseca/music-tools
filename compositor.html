@@ -213,8 +213,11 @@ function buildModeDesc(){const m=MODES[selModeKey];document.getElementById('mode
 function buildAll(){buildModeButtons();buildModeDesc();buildPalette();buildPresets();updateAll();}
 
 function updateProgDisplay(){
-  const el=document.getElementById('prog-display'),empty=document.getElementById('prog-empty');
-  if(!progression.length){el.innerHTML='';el.appendChild(empty);return;}
+  const el=document.getElementById('prog-display');
+  if(!progression.length){
+    el.innerHTML='<span style="font-size:12px;color:#333;align-self:center">Agrega acordes desde la paleta...</span>';
+    return;
+  }
   el.innerHTML='';
   progression.forEach((c,i)=>{
     const slot=document.createElement('div');slot.className='prog-slot';slot.title='Clic para eliminar';
@@ -224,8 +227,11 @@ function updateProgDisplay(){
 }
 
 function updateTabDisplay(){
-  const el=document.getElementById('tab-display'),empty=document.getElementById('tab-empty');
-  if(!progression.length){el.innerHTML='';el.appendChild(empty);return;}
+  const el=document.getElementById('tab-display');
+  if(!progression.length){
+    el.innerHTML='<span style="font-size:12px;color:#333;align-self:center;padding:8px">Los diagramas aparecerán aquí...</span>';
+    return;
+  }
   el.innerHTML='';const m=MODES[selModeKey];const tuning=currentTuning();
   progression.forEach(c=>{
     const ch=m.chords[c.chordIdx],rs=chordRootSemi(selKey,selModeKey,c.chordIdx),v=computeVoicing(rs,ch.q,tuning);
