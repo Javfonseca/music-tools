@@ -376,14 +376,16 @@ function render(){
     b.style.borderColor=on?'transparent':'';
   });
 
-  // Scale + penta buttons — active=solid color, inactive=transparent
+  // Scale + penta buttons
   document.querySelectorAll('.sb').forEach(b=>{
     const active=b.dataset.id===selScale.id;
     const color=MODES.find(m=>m.id===b.dataset.id)?.color||
       (b.dataset.id==='penta-m'?'#4a9eff':'#4caf50');
-    b.style.background=active?color:'';
-    b.style.opacity=active?'1':'0.4';
-    b.style.borderColor=active?'rgba(255,255,255,.5)':'transparent';
+    // Always show background color; active = full opacity + white border, inactive = dim
+    b.style.background=color;
+    b.style.opacity=active?'1':'0.3';
+    b.style.borderColor=active?'rgba(255,255,255,.6)':'transparent';
+    b.style.boxShadow=active?`0 0 0 2px ${color}88`:'none';
   });
 }
 
