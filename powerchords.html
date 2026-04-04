@@ -269,7 +269,7 @@ function drawDiag(voicing,name,color,type){
   // Type badge
   s+=`<text x="${W/2}" y="26" font-size="9" fill="${color}88" text-anchor="middle" font-family="sans-serif">${TYPE_NAME[type]}</text>`;
   if(showNut) s+=`<rect x="${SX[0]-4}" y="${GY-5}" width="${SX[5]-SX[0]+8}" height="5" rx="2.5" fill="#888"/>`;
-  else s+=`<text x="${SX[0]-6}" y="${GY+12}" font-size="10" fill="#888" text-anchor="end" font-family="sans-serif">${ds}</text>`;
+  else s+=`<text x="${SX[0]-DR-6}" y="${GY+FH/2+4}" font-size="11" fill="#999" text-anchor="end" font-family="sans-serif" font-weight="600">${ds}</text>`;
   for(let i=0;i<=NF;i++) s+=`<line x1="${SX[0]-3}" y1="${GY+i*FH}" x2="${SX[5]+3}" y2="${GY+i*FH}" stroke="#2e2e2e" stroke-width="1.5"/>`;
   SX.forEach(x=>s+=`<line x1="${x}" y1="${GY}" x2="${x}" y2="${GY+NF*FH}" stroke="#2e2e2e" stroke-width="1.5"/>`);
   voicing.forEach((f,i)=>{
