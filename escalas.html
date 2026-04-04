@@ -314,9 +314,6 @@ function renderPenta(){
     for(const baseF of posData.frets[s]){
       const targetNote=(stdO+baseF+shift)%12;
       let f=((targetNote-curO)+12)%12;
-      // Standard-tuned string: f=0 means the position wrapped to fret 12
-      // Retuned string: f=0 is a genuine open string
-      if(f===0 && curO===stdO) f=12;
       const iv=(targetNote-rs+12)%12;
       if(penta.semis.includes(iv)){
         if(f===0) oDots.push({s,iv,color:penta.color,deg:penta.degs[iv]||'?'});
