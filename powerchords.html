@@ -70,12 +70,11 @@ body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd}
 
   <div class="prow" style="margin-bottom:1.2rem;align-items:flex-end">
     <div><div class="psec">TONALIDAD</div><select class="sel" id="key-sel"></select></div>
-    <div style="margin-left:14px"><div class="psec">ESCALA</div>
-      <select class="sel" id="scale-sel">
-        <option value="minor">Menor</option>
-        <option value="major">Mayor</option>
-      </select>
-    </div>
+  </div>
+  <div class="psec">MODO</div>
+  <div class="prow" id="mode-btns" style="gap:6px;margin-bottom:.6rem"></div>
+  <div id="mode-desc" style="font-size:12px;color:#555;margin-bottom:.9rem;padding:6px 10px;background:#161616;border-left:3px solid #333;border-radius:6px"></div>
+  <div style="display:none">
   </div>
 
   <!-- Type legend -->
@@ -162,30 +161,90 @@ const TUNINGS=[
   {name:'Open E',s:[4,11,4,8,11,4]},{name:'DADGAD',s:[2,9,2,7,9,2]},
 ];
 
-// Scale degrees: interval from root, available types, base tension, recommended types (first = default)
-const DEGREES={
-  minor:[
-    {deg:'Im',    iv:0,  types:['std','inv'],        t:1.0},
-    {deg:'IIdim', iv:2,  types:['dim','std'],         t:6.5},
-    {deg:'bIII',  iv:3,  types:['std','inv'],         t:3.0},
-    {deg:'IVm',   iv:5,  types:['std','inv'],         t:5.0},
-    {deg:'Vm',    iv:7,  types:['std','str','inv'],   t:6.0},
-    {deg:'bVI',   iv:8,  types:['std','inv'],         t:2.0},
-    {deg:'bVII',  iv:10, types:['std','inv'],         t:4.0},
-  ],
-  major:[
-    {deg:'I',      iv:0,  types:['std','inv'],        t:1.0},
-    {deg:'IIm',    iv:2,  types:['std','inv'],        t:4.0},
-    {deg:'IIIm',   iv:4,  types:['std','inv'],        t:3.0},
-    {deg:'IV',     iv:5,  types:['std','inv'],        t:5.0},
-    {deg:'V',      iv:7,  types:['std','str','inv'],  t:6.0},
-    {deg:'VIm',    iv:9,  types:['std','inv'],        t:2.0},
-    {deg:'VIIdim', iv:11, types:['dim','std'],        t:8.0},
-  ],
-};
+// All 7 modes with power chord types per degree
+// Stretched only on dominant-function degrees; Dim only where b5 exists
+const MODES_PC=[
+  {id:'ionian',    name:'Ionian',    aka:'mayor',    color:'#4a9eff',
+   desc:'Mayor. Brillante. Rock melódico, pop punk.',
+   degs:[
+    {deg:'I',      iv:0,  types:['std','inv'],       t:1.0},
+    {deg:'IIm',    iv:2,  types:['std','inv'],       t:4.0},
+    {deg:'IIIm',   iv:4,  types:['std','inv'],       t:3.0},
+    {deg:'IV',     iv:5,  types:['std','inv'],       t:5.0},
+    {deg:'V',      iv:7,  types:['std','str','inv'], t:6.0},
+    {deg:'VIm',    iv:9,  types:['std','inv'],       t:2.0},
+    {deg:'VIIdim', iv:11, types:['dim','std'],       t:8.5},
+   ]},
+  {id:'dorian',    name:'Dorian',    aka:'',         color:'#a07af0',
+   desc:'Menor con 6ta mayor. Jazz-metal, groove. Sabbath, Metallica.',
+   degs:[
+    {deg:'Im',     iv:0,  types:['std','inv'],       t:1.0},
+    {deg:'IIm',    iv:2,  types:['std','inv'],       t:4.0},
+    {deg:'bIII',   iv:3,  types:['std','inv'],       t:3.0},
+    {deg:'IV',     iv:5,  types:['std','inv'],       t:5.0},
+    {deg:'Vm',     iv:7,  types:['std','str','inv'], t:6.0},
+    {deg:'VIdim',  iv:9,  types:['dim','std'],       t:7.5},
+    {deg:'bVII',   iv:10, types:['std','inv'],       t:4.0},
+   ]},
+  {id:'phrygian',  name:'Phrygian',  aka:'',         color:'#e05a5a',
+   desc:'b2 característica. Oscuro, flamenco. Sepultura, Gojira, metal extremo.',
+   degs:[
+    {deg:'Im',     iv:0,  types:['std','inv'],       t:1.0},
+    {deg:'bII',    iv:1,  types:['std','inv'],       t:7.0},
+    {deg:'bIII',   iv:3,  types:['std','inv'],       t:3.0},
+    {deg:'IVm',    iv:5,  types:['std','inv'],       t:5.0},
+    {deg:'Vdim',   iv:7,  types:['dim','std'],       t:8.0},
+    {deg:'bVI',    iv:8,  types:['std','inv'],       t:2.5},
+    {deg:'bVIIm',  iv:10, types:['std','inv'],       t:4.5},
+   ]},
+  {id:'lydian',    name:'Lydian',    aka:'',         color:'#4ec9a0',
+   desc:'#4 etérea. Prog rock, bandas sonoras. Megadeth solos.',
+   degs:[
+    {deg:'I',      iv:0,  types:['std','inv'],       t:1.0},
+    {deg:'II',     iv:2,  types:['std','inv'],       t:5.0},
+    {deg:'IIIm',   iv:4,  types:['std','inv'],       t:3.0},
+    {deg:'#IVdim', iv:6,  types:['dim','std'],       t:8.5},
+    {deg:'V',      iv:7,  types:['std','str','inv'], t:6.0},
+    {deg:'VIm',    iv:9,  types:['std','inv'],       t:2.0},
+    {deg:'VIIm',   iv:11, types:['std','inv'],       t:4.0},
+   ]},
+  {id:'mixolydian',name:'Mixolydian',aka:'',         color:'#e07c40',
+   desc:'Mayor con b7. Rock clásico, blues-metal. Riff dominante.',
+   degs:[
+    {deg:'I',      iv:0,  types:['std','inv'],       t:1.0},
+    {deg:'IIm',    iv:2,  types:['std','inv'],       t:4.0},
+    {deg:'IIIdim', iv:4,  types:['dim','std'],       t:7.0},
+    {deg:'IV',     iv:5,  types:['std','inv'],       t:5.0},
+    {deg:'Vm',     iv:7,  types:['std','str','inv'], t:5.5},
+    {deg:'VIm',    iv:9,  types:['std','inv'],       t:2.0},
+    {deg:'bVII',   iv:10, types:['std','inv'],       t:5.0},
+   ]},
+  {id:'aeolian',   name:'Aeolian',   aka:'menor nat.',color:'#7a9fc0',
+   desc:'Menor natural. La base del metal oscuro. Sabbath, Maiden.',
+   degs:[
+    {deg:'Im',     iv:0,  types:['std','inv'],       t:1.0},
+    {deg:'IIdim',  iv:2,  types:['dim','std'],       t:6.5},
+    {deg:'bIII',   iv:3,  types:['std','inv'],       t:3.0},
+    {deg:'IVm',    iv:5,  types:['std','inv'],       t:4.5},
+    {deg:'Vm',     iv:7,  types:['std','str','inv'], t:6.0},
+    {deg:'bVI',    iv:8,  types:['std','inv'],       t:2.0},
+    {deg:'bVII',   iv:10, types:['std','inv'],       t:4.0},
+   ]},
+  {id:'locrian',   name:'Locrian',   aka:'',         color:'#c06090',
+   desc:'b2 y b5. Inestabilidad total. Death metal, avant-garde.',
+   degs:[
+    {deg:'Idim',   iv:0,  types:['dim','std'],       t:7.0},
+    {deg:'bII',    iv:1,  types:['std','inv'],       t:3.0},
+    {deg:'IIIm',   iv:3,  types:['std','inv'],       t:4.0},
+    {deg:'IVm',    iv:5,  types:['std','inv'],       t:5.0},
+    {deg:'bV',     iv:6,  types:['std','inv'],       t:7.5},
+    {deg:'bVI',    iv:8,  types:['std','inv'],       t:4.0},
+    {deg:'bVIIm',  iv:10, types:['std','str','inv'], t:6.0},
+   ]},
+];
 const TYPE_T_MOD={std:0,inv:0,dim:2,str:1.5};
 
-let selKey='A',selScale='minor',selTune=0,progression=[];
+let selKey='A',selMode=MODES_PC[5],selTune=0,progression=[];
 
 function tuning(){return TUNINGS[selTune].s;}
 function chr(k){return useFl[k]?chrFlat:chrSharp;}
@@ -313,9 +372,33 @@ function buildTune(){
 }
 
 // ── Build palette ──
+function buildModeButtons(){
+  const el=document.getElementById('mode-btns');el.innerHTML='';
+  MODES_PC.forEach((m,i)=>{
+    const btn=document.createElement('button');
+    btn.className='pb';
+    btn.style.background=m.color;
+    btn.style.color='#fff';
+    btn.style.border='2px solid transparent';
+    btn.style.opacity=selMode.id===m.id?'1':'0.35';
+    btn.style.borderColor=selMode.id===m.id?'rgba(255,255,255,.6)':'transparent';
+    btn.style.fontWeight='600';
+    btn.style.fontSize='12px';
+    btn.textContent=m.name+(m.aka?' ('+m.aka+')':'');
+    btn.addEventListener('click',()=>{
+      selMode=m;progression=[];
+      buildModeButtons();buildPalette();updateAll();
+    });
+    el.appendChild(btn);
+  });
+  const d=document.getElementById('mode-desc');
+  d.style.borderLeftColor=selMode.color;
+  d.innerHTML=`<span style="color:${selMode.color};font-weight:600">${selMode.name}${selMode.aka?' ('+selMode.aka+')':''}</span> — ${selMode.desc}`;
+}
+
 function buildPalette(){
   const el=document.getElementById('palette');el.innerHTML='';
-  const degs=DEGREES[selScale];
+  const degs=selMode.degs;
   degs.forEach((d,di)=>{
     const rootSemi=chordRootSemi(d.iv);
     const card=document.createElement('div');card.className='deg-card';
@@ -459,14 +542,11 @@ document.getElementById('key-sel').addEventListener('change',e=>{
   selKey=e.target.value;
   progression=[];buildPalette();updateAll();
 });
-document.getElementById('scale-sel').addEventListener('change',e=>{
-  selScale=e.target.value;
-  progression=[];buildPalette();updateAll();
-});
 
 // ── Init ──
 document.getElementById('key-sel').innerHTML=ROOT_NAMES.map(r=>`<option value="${r}"${r==='A'?' selected':''}>${r}</option>`).join('');
 buildTune();
+buildModeButtons();
 buildPalette();
 updateAll();
 </script>
