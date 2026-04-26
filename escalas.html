@@ -309,11 +309,16 @@ function renderPenta(){
   const shift=(rs-9+12)%12;
   const fDots=[],oDots=[];
   for(let s=1;s<=6;s++){
-    const stdO=STD_OPEN[6-s]; // standard open note for this string
-    const curO=OS[s];         // current tuning open note
+    const stdO=STD_OPEN[6-s];
+    const curO=OS[s];
     for(const baseF of posData.frets[s]){
       const targetNote=(stdO+baseF+shift)%12;
       let f=((targetNote-curO)+12)%12;
+      // Anchor f to the expected octave using baseF+shift as reference.
+      // Prevents fret 12 collapsing to 0 and genuine open strings from becoming fret 12.
+      const expected=baseF+shift;
+      while(f<expected-6) f+=12;
+      while(f>expected+6) f-=12;
       const iv=(targetNote-rs+12)%12;
       if(penta.semis.includes(iv)){
         if(f===0) oDots.push({s,iv,color:penta.color,deg:penta.degs[iv]||'?'});
