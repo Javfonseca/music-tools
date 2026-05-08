@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metrónomo — Music Theory Tools</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd;user-select:none;-webkit-user-select:none}
+.header{padding:.9rem 1.5rem;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1e1e1e;position:sticky;top:0;background:#111;z-index:10}
+.back{color:#555;text-decoration:none;font-size:13px}.back:hover{color:#aaa}
+.page-title{color:#ddd;font-size:15px;font-weight:600}
+.container{max-width:760px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.psec{font-size:10px;color:#444;letter-spacing:.1em;margin-bottom:6px}
+
+/* BPM */
+.bpm-block{display:flex;flex-direction:column;align-items:center;margin-bottom:1.4rem}
+.bpm-row{display:flex;align-items:center;gap:12px}
+.bpm-num{font-size:clamp(5rem,18vw,8rem);font-weight:900;color:#fff;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;min-width:220px;text-align:center;cursor:default}
+.bpm-col{display:flex;flex-direction:column;gap:6px}
+.bpm-btn{width:40px;height:40px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#ccc;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.bpm-btn:hover{background:#252525;color:#fff;border-color:#555}
+.bpm-btn:active{background:#2a2a2a;transform:scale(.95)}
+.bpm-label{font-size:12px;color:#444;text-align:center;margin-top:4px;letter-spacing:.06em}
+.bpm-slider{width:100%;max-width:480px;margin-top:.8rem;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:#252525;outline:none}
+.bpm-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#4a9eff;cursor:pointer;border:2px solid #111}
+.bpm-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#4a9eff;cursor:pointer;border:2px solid #111}
+
+/* Controls row */
+.controls-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1rem}
+.ctrl-group{background:#1a1a1a;border-radius:10px;padding:10px 12px}
+.ctrl-btns{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.cb{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid #252525;background:transparent;color:#777;cursor:pointer;white-space:nowrap}
+.cb:hover{border-color:#555;color:#ccc}
+.cb.on{background:#222;color:#fff;border-color:#666}
+.vol-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.vol-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:#252525;outline:none}
+.vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#888;cursor:pointer}
+.vol-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#888;cursor:pointer;border:none}
+.vol-icon{font-size:14px;color:#444}
+
+/* Subdivisions */
+.subdiv-row{display:flex;gap:6px;margin-bottom:1.2rem;flex-wrap:wrap}
+.sdiv-btn{font-size:12px;padding:6px 14px;border-radius:7px;border:1px solid #252525;background:transparent;color:#666;cursor:pointer}
+.sdiv-btn:hover{border-color:#555;color:#ccc}
+.sdiv-btn.on{background:#1a1a1a;color:#fff;border-color:#555}
+
+/* Visual mode selector */
+.vis-modes{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.vm-btn{font-size:12px;padding:6px 14px;border-radius:7px;border:1px solid #252525;background:transparent;color:#666;cursor:pointer}
+.vm-btn:hover{border-color:#555;color:#ccc}
+.vm-btn.on{background:#252525;color:#fff;border-color:#666}
+
+/* Visual display */
+.vis-area{background:#161616;border-radius:14px;border:1px solid #1e1e1e;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+#vis-beats{width:100%;padding:2rem 1.5rem;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;min-height:180px}
+.beat-dot{width:52px;height:52px;border-radius:50%;background:#1e1e1e;border:2px solid #2a2a2a;transition:background .05s,transform .05s,border-color .05s;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#333;flex-shrink:0}
+.beat-dot.accent{background:#1e1e1e;border-color:#4a9eff44;color:#4a9eff44}
+.beat-dot.active{transform:scale(1.18);border-color:transparent}
+.beat-dot.active.accent{background:#4a9eff;color:#fff}
+.beat-dot.active.normal{background:#ddd;color:#111}
+.beat-dot.subdot{width:22px;height:22px;border-radius:50%;background:#1e1e1e;border:1.5px solid #222;color:transparent;font-size:0}
+.beat-dot.subdot.active.normal{background:#888}
+
+#vis-pendulum{width:100%;min-height:280px;display:flex;align-items:center;justify-content:center}
+.pend-svg{overflow:visible}
+
+#vis-pulse{width:100%;min-height:280px;display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap}
+.pulse-ring{width:180px;height:180px;border-radius:50%;border:3px solid #252525;display:flex;align-items:center;justify-content:center;position:relative;transition:border-color .06s}
+.pulse-inner{width:100px;height:100px;border-radius:50%;background:#1e1e1e;transition:background .06s,transform .06s,box-shadow .06s}
+.beat-counter{font-size:48px;font-weight:900;color:#333;transition:color .06s}
+
+#vis-arc{width:100%;min-height:280px;display:flex;align-items:center;justify-content:center}
+
+/* Tap & Start */
+.bottom-row{display:flex;gap:10px;margin-top:.5rem}
+.tap-btn{flex:1;padding:1.1rem;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.04em}
+.tap-btn:hover{background:#222;border-color:#555;color:#fff}
+.tap-btn:active{background:#252525;transform:scale(.98)}
+.start-btn{flex:2;padding:1.1rem;border-radius:10px;border:none;font-size:18px;font-weight:800;cursor:pointer;letter-spacing:.04em;transition:background .15s,transform .1s}
+.start-btn.stopped{background:#4a9eff;color:#fff}
+.start-btn.stopped:hover{background:#5aaeff}
+.start-btn.playing{background:#e05a5a;color:#fff}
+.start-btn.playing:hover{background:#f06060}
+.start-btn:active{transform:scale(.98)}
+
+@media(max-width:500px){
+  .controls-grid{grid-template-columns:1fr 1fr}
+  .bpm-num{font-size:5rem;min-width:160px}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="index.html">← Herramientas</a>
+  <span class="page-title">Metrónomo</span>
+</div>
+
+<div class="container">
+
+  <!-- BPM -->
+  <div class="bpm-block">
+    <div class="bpm-row">
+      <div class="bpm-col">
+        <button class="bpm-btn" id="bpm-p5" title="+5">+</button>
+        <button class="bpm-btn" id="bpm-p1" title="+1" style="font-size:13px;color:#555">+1</button>
+      </div>
+      <div>
+        <div class="bpm-num" id="bpm-display">120</div>
+        <div class="bpm-label">BPM</div>
+      </div>
+      <div class="bpm-col">
+        <button class="bpm-btn" id="bpm-m5" title="-5">−</button>
+        <button class="bpm-btn" id="bpm-m1" title="-1" style="font-size:13px;color:#555">−1</button>
+      </div>
+    </div>
+    <input class="bpm-slider" type="range" id="bpm-slider" min="20" max="300" value="120">
+  </div>
+
+  <!-- Controls -->
+  <div class="controls-grid">
+    <div class="ctrl-group">
+      <div class="psec">COMPÁS</div>
+      <div class="ctrl-btns" id="sig-btns"></div>
+    </div>
+    <div class="ctrl-group">
+      <div class="psec">SONIDO</div>
+      <div class="ctrl-btns" id="sound-btns"></div>
+    </div>
+    <div class="ctrl-group">
+      <div class="psec">VOLUMEN</div>
+      <div class="vol-row">
+        <span class="vol-icon">🔈</span>
+        <input class="vol-slider" type="range" id="vol-slider" min="0" max="100" value="75">
+        <span class="vol-icon">🔊</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subdivisions -->
+  <div style="margin-bottom:.5rem"><div class="psec">SUBDIVISIÓN</div></div>
+  <div class="subdiv-row" id="subdiv-btns"></div>
+
+  <!-- Visual modes -->
+  <div style="margin-bottom:.5rem"><div class="psec">VISUALIZACIÓN</div></div>
+  <div class="vis-modes" id="vis-mode-btns"></div>
+
+  <!-- Visual area -->
+  <div class="vis-area" id="vis-area">
+    <div id="vis-beats"></div>
+    <div id="vis-pendulum" style="display:none"></div>
+    <div id="vis-pulse" style="display:none"></div>
+    <div id="vis-arc" style="display:none"></div>
+  </div>
+
+  <!-- Tap + Start -->
+  <div class="bottom-row">
+    <button class="tap-btn" id="tap-btn">TAP</button>
+    <button class="start-btn stopped" id="start-btn">▶ PLAY</button>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════ CONFIG ═══════════════════
+const TIME_SIGS=[
+  {l:'2/4',b:2},{l:'3/4',b:3},{l:'4/4',b:4},{l:'5/4',b:5},
+  {l:'6/4',b:6},{l:'7/8',b:7},{l:'9/8',b:9},{l:'12/8',b:12},
+];
+const SOUNDS=[
+  {id:'click',  l:'Click'},
+  {id:'wood',   l:'Wood'},
+  {id:'hihat',  l:'Hi-hat'},
+  {id:'cowbell',l:'Cowbell'},
+  {id:'elec',   l:'Electrónico'},
+  {id:'silent', l:'Silencio'},
+];
+const SUBDIVS=[
+  {id:1,l:'Negras'},
+  {id:2,l:'Corcheas (÷2)'},
+  {id:3,l:'Tresillos (÷3)'},
+  {id:4,l:'Semicorcheas (÷4)'},
+];
+const VIS_MODES=[
+  {id:'beats',  l:'Pulsos'},
+  {id:'pendulum',l:'Péndulo'},
+  {id:'pulse',  l:'Flash'},
+  {id:'arc',    l:'Arco'},
+];
+
+let bpm=120, sigIdx=2, soundId='click', volume=0.75, subdivId=1, visMode='beats';
+let isPlaying=false;
+let audioCtx=null, schedulerTimer=null;
+let nextBeatTime=0, currentBeat=0, currentSubBeat=0;
+const LOOKAHEAD=0.12, SCHED_INT=25;
+
+// ═══════════════════ AUDIO ═══════════════════
+function getCtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playSound(time, isAccent, isSub){
+  if(soundId==='silent') return;
+  const ctx=getCtx();
+  const g=ctx.createGain();
+  g.connect(ctx.destination);
+  const vol=volume*(isSub?0.45:(isAccent?1:0.72));
+  const freq=isSub?(isAccent?1000:600):(isAccent?1100:880);
+
+  if(soundId==='click'){
+    const o=ctx.createOscillator();
+    o.type='sine';
+    o.frequency.value=freq;
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time+0.04);
+    o.connect(g); o.start(time); o.stop(time+0.045);
+  }
+  else if(soundId==='wood'){
+    const buf=ctx.createBuffer(1,ctx.sampleRate*0.1,ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.012));
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const f=ctx.createBiquadFilter(); f.type='bandpass';
+    f.frequency.value=isAccent?1400:1000; f.Q.value=8;
+    src.connect(f); f.connect(g);
+    g.gain.setValueAtTime(vol*2,time);
+    g.gain.exponentialRampToValueAtTime(0.001,time+0.08);
+    src.start(time); src.stop(time+0.1);
+  }
+  else if(soundId==='hihat'){
+    const buf=ctx.createBuffer(1,ctx.sampleRate*0.05,ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const hp=ctx.createBiquadFilter(); hp.type='highpass';
+    hp.frequency.value=isAccent?8000:6000;
+    src.connect(hp); hp.connect(g);
+    g.gain.setValueAtTime(vol*(isAccent?0.9:0.6),time);
+    g.gain.exponentialRampToValueAtTime(0.001,time+0.04);
+    src.start(time); src.stop(time+0.05);
+  }
+  else if(soundId==='cowbell'){
+    const freqs=isAccent?[562,845]:[492,740];
+    freqs.forEach(fr=>{
+      const o=ctx.createOscillator(); o.type='square'; o.frequency.value=fr;
+      const gn=ctx.createGain(); gn.gain.setValueAtTime(vol*0.4,time);
+      gn.gain.exponentialRampToValueAtTime(0.001,time+0.28);
+      const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=fr; bp.Q.value=2;
+      o.connect(bp); bp.connect(gn); gn.connect(ctx.destination);
+      o.start(time); o.stop(time+0.3);
+    });
+  }
+  else if(soundId==='elec'){
+    const o=ctx.createOscillator(); o.type='square';
+    o.frequency.value=isAccent?880:660;
+    g.gain.setValueAtTime(vol*0.5,time);
+    g.gain.exponentialRampToValueAtTime(0.001,time+0.03);
+    o.connect(g); o.start(time); o.stop(time+0.035);
+  }
+}
+
+// ═══════════════════ SCHEDULER ═══════════════════
+function getTotalSubBeats(){
+  const sig=TIME_SIGS[sigIdx];
+  return sig.b * subdivId;
+}
+
+function scheduler(){
+  const ctx=getCtx();
+  const subBeatInterval=(60.0/bpm)/subdivId;
+  const totalSub=getTotalSubBeats();
+  while(nextBeatTime<ctx.currentTime+LOOKAHEAD){
+    const isMainBeat=(currentSubBeat%subdivId===0);
+    const mainBeat=Math.floor(currentSubBeat/subdivId);
+    const isAccent=(mainBeat===0&&isMainBeat);
+    const isSub=!isMainBeat;
+    playSound(nextBeatTime,isAccent,isSub);
+    const delay=Math.max(0,(nextBeatTime-ctx.currentTime)*1000);
+    const capturedSub=currentSubBeat, capturedMain=mainBeat, capIsMain=isMainBeat;
+    setTimeout(()=>flashVisual(capturedSub,capturedMain,capIsMain),delay);
+    nextBeatTime+=subBeatInterval;
+    currentSubBeat=(currentSubBeat+1)%totalSub;
+  }
+  schedulerTimer=setTimeout(scheduler,SCHED_INT);
+}
+
+function start(){
+  getCtx().resume();
+  const ctx=getCtx();
+  currentBeat=0; currentSubBeat=0;
+  nextBeatTime=ctx.currentTime+0.05;
+  isPlaying=true;
+  document.getElementById('start-btn').textContent='■ STOP';
+  document.getElementById('start-btn').className='start-btn playing';
+  scheduler();
+}
+
+function stop(){
+  isPlaying=false;
+  clearTimeout(schedulerTimer);
+  schedulerTimer=null;
+  document.getElementById('start-btn').textContent='▶ PLAY';
+  document.getElementById('start-btn').className='start-btn stopped';
+  resetVisuals();
+}
+
+// ═══════════════════ VISUALS ═══════════════════
+let pendAngle=0, pendDir=1;
+let arcAnimFrame=null, arcMeasureStart=0, arcMeasureDuration=0;
+
+function buildVisBeat(){
+  const el=document.getElementById('vis-beats');
+  el.innerHTML='';
+  const sig=TIME_SIGS[sigIdx];
+  for(let b=0;b<sig.b;b++){
+    const d=document.createElement('div');
+    d.className='beat-dot'+(b===0?' accent':' normal');
+    d.dataset.beat=b;
+    d.textContent=b+1;
+    el.appendChild(d);
+    if(subdivId>1){
+      for(let s=1;s<subdivId;s++){
+        const sd=document.createElement('div');
+        sd.className='beat-dot subdot';
+        sd.dataset.beat=b; sd.dataset.sub=s;
+        el.appendChild(sd);
+      }
+    }
+  }
+}
+
+function buildVisPendulum(){
+  const el=document.getElementById('vis-pendulum');
+  el.innerHTML=`
+    <svg class="pend-svg" viewBox="-100 -20 200 220" width="200" height="220">
+      <line x1="0" y1="0" x2="0" y2="-10" stroke="#333" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="0" cy="-16" r="6" fill="#333"/>
+      <g id="pend-arm" style="transform-origin:0px 0px;transform:rotate(-40deg);transition:transform 0.1s ease-out">
+        <line x1="0" y1="0" x2="0" y2="160" stroke="#4a4a4a" stroke-width="4" stroke-linecap="round"/>
+        <circle id="pend-bob" cx="0" cy="162" r="18" fill="#555"/>
+        <circle cx="0" cy="162" r="10" fill="#333"/>
+      </g>
+      <text id="pend-beat-num" x="0" y="205" text-anchor="middle" font-size="18" font-weight="700" fill="#444" font-family="sans-serif">1</text>
+    </svg>`;
+  pendAngle=-40; pendDir=1;
+}
+
+function buildVisPulse(){
+  const el=document.getElementById('vis-pulse');
+  el.innerHTML=`
+    <div class="pulse-ring" id="pulse-ring">
+      <div class="pulse-inner" id="pulse-inner"></div>
+    </div>
+    <div class="beat-counter" id="beat-counter">1</div>`;
+}
+
+function buildVisArc(){
+  const el=document.getElementById('vis-arc');
+  const R=90, C=2*Math.PI*R;
+  el.innerHTML=`
+    <svg viewBox="-130 -130 260 260" width="260" height="260" style="overflow:visible">
+      <circle cx="0" cy="0" r="${R}" fill="none" stroke="#1e1e1e" stroke-width="8"/>
+      <circle id="arc-prog" cx="0" cy="0" r="${R}" fill="none" stroke="#4a9eff" stroke-width="8"
+        stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}"
+        transform="rotate(-90)"/>
+      <g id="arc-dots"></g>
+      <text id="arc-bpm" x="0" y="8" text-anchor="middle" font-size="36" font-weight="900" fill="#fff" font-family="sans-serif">${bpm}</text>
+      <text x="0" y="28" text-anchor="middle" font-size="12" fill="#555" font-family="sans-serif">BPM</text>
+      <circle id="arc-head" cx="${R}" cy="0" r="10" fill="#4a9eff"/>
+    </svg>`;
+  buildArcDots();
+}
+
+function buildArcDots(){
+  const g=document.getElementById('arc-dots');
+  if(!g) return;
+  g.innerHTML='';
+  const sig=TIME_SIGS[sigIdx];
+  const R=90;
+  for(let i=0;i<sig.b;i++){
+    const angle=(i/sig.b)*2*Math.PI-Math.PI/2;
+    const x=R*Math.cos(angle), y=R*Math.sin(angle);
+    const isFirst=i===0;
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x.toFixed(1));c.setAttribute('cy',y.toFixed(1));
+    c.setAttribute('r',isFirst?'7':'4');
+    c.setAttribute('fill',isFirst?'#4a9eff44':'#2a2a2a');
+    c.setAttribute('id',`arc-beat-${i}`);
+    g.appendChild(c);
+  }
+}
+
+function buildVisuals(){
+  buildVisBeat();
+  buildVisPendulum();
+  buildVisPulse();
+  buildVisArc();
+}
+
+function showVis(mode){
+  ['beats','pendulum','pulse','arc'].forEach(m=>{
+    document.getElementById(`vis-${m}`).style.display=m===mode?'flex':'none';
+  });
+}
+
+function flashVisual(subBeat, mainBeat, isMain){
+  const sig=TIME_SIGS[sigIdx];
+  const isAccent=(mainBeat===0&&isMain);
+  const color=isAccent?'#4a9eff':'#ddd';
+
+  if(visMode==='beats'){
+    // Clear all
+    document.querySelectorAll('.beat-dot').forEach(d=>{
+      d.classList.remove('active');
+    });
+    if(isMain){
+      document.querySelectorAll(`.beat-dot:not(.subdot)[data-beat="${mainBeat}"]`).forEach(d=>{
+        d.classList.add('active');
+      });
+    } else {
+      // sub-beat
+      const subIdx=subBeat%subdivId;
+      document.querySelectorAll(`.beat-dot.subdot[data-beat="${mainBeat}"][data-sub="${subIdx}"]`).forEach(d=>{
+        d.classList.add('active');
+      });
+    }
+  }
+  else if(visMode==='pendulum'&&isMain){
+    const arm=document.getElementById('pend-arm');
+    const bob=document.getElementById('pend-bob');
+    const numEl=document.getElementById('pend-beat-num');
+    if(!arm) return;
+    const beatInterval=60000/bpm;
+    // Alternate direction each beat
+    pendDir=(mainBeat%2===0)?1:-1;
+    const targetAngle=pendDir*42;
+    arm.style.transition=`transform ${beatInterval*0.9}ms cubic-bezier(.37,0,.63,1)`;
+    arm.style.transform=`rotate(${targetAngle}deg)`;
+    bob.setAttribute('fill',isAccent?'#4a9eff':'#555');
+    if(numEl) numEl.textContent=mainBeat+1;
+    if(numEl) numEl.setAttribute('fill',isAccent?'#4a9eff':'#888');
+  }
+  else if(visMode==='pulse'&&isMain){
+    const ring=document.getElementById('pulse-ring');
+    const inner=document.getElementById('pulse-inner');
+    const counter=document.getElementById('beat-counter');
+    if(!ring) return;
+    ring.style.borderColor=color;
+    inner.style.background=color;
+    inner.style.transform='scale(1.15)';
+    inner.style.boxShadow=`0 0 30px ${isAccent?'#4a9eff88':'#ffffff44'}`;
+    if(counter){ counter.textContent=mainBeat+1; counter.style.color=color; }
+    setTimeout(()=>{
+      inner.style.background='#1e1e1e';
+      inner.style.transform='scale(1)';
+      inner.style.boxShadow='none';
+      ring.style.borderColor='#252525';
+      if(counter) counter.style.color='#333';
+    }, 80);
+  }
+  else if(visMode==='arc'&&isMain){
+    // Highlight the beat dot on the arc
+    document.querySelectorAll('[id^="arc-beat-"]').forEach(c=>{
+      c.setAttribute('fill',c.id===`arc-beat-${mainBeat}`?(mainBeat===0?'#4a9eff':'#888'):'#2a2a2a');
+      c.setAttribute('r',c.id===`arc-beat-${mainBeat}`?(mainBeat===0?'9':'7'):(mainBeat===0?'7':'4'));
+    });
+    // Start arc animation for this measure
+    if(mainBeat===0){
+      const sig=TIME_SIGS[sigIdx];
+      arcMeasureStart=performance.now();
+      arcMeasureDuration=(60000/bpm)*sig.b;
+      if(arcAnimFrame) cancelAnimationFrame(arcAnimFrame);
+      animateArc();
+    }
+  }
+}
+
+function animateArc(){
+  const prog=document.getElementById('arc-prog');
+  const head=document.getElementById('arc-head');
+  if(!prog||!head) return;
+  const elapsed=performance.now()-arcMeasureStart;
+  const t=Math.min(elapsed/arcMeasureDuration,1);
+  const R=90, C=2*Math.PI*R;
+  prog.style.strokeDashoffset=C*(1-t);
+  const angle=(t*2*Math.PI)-Math.PI/2;
+  head.setAttribute('cx',(R*Math.cos(angle)).toFixed(2));
+  head.setAttribute('cy',(R*Math.sin(angle)).toFixed(2));
+  if(t<1&&isPlaying) arcAnimFrame=requestAnimationFrame(animateArc);
+}
+
+function resetVisuals(){
+  document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('active'));
+  const inner=document.getElementById('pulse-inner');
+  if(inner){inner.style.background='#1e1e1e';inner.style.transform='scale(1)';inner.style.boxShadow='none';}
+  const ring=document.getElementById('pulse-ring');
+  if(ring) ring.style.borderColor='#252525';
+  const counter=document.getElementById('beat-counter');
+  if(counter){counter.textContent='1';counter.style.color='#333';}
+  const prog=document.getElementById('arc-prog');
+  if(prog) prog.style.strokeDashoffset=2*Math.PI*90;
+  const head=document.getElementById('arc-head');
+  if(head){head.setAttribute('cx','90');head.setAttribute('cy','0');}
+  document.querySelectorAll('[id^="arc-beat-"]').forEach(c=>{
+    const isFirst=c.id==='arc-beat-0';
+    c.setAttribute('fill',isFirst?'#4a9eff44':'#2a2a2a');
+    c.setAttribute('r',isFirst?'7':'4');
+  });
+  const arm=document.getElementById('pend-arm');
+  if(arm){arm.style.transition='transform .2s';arm.style.transform='rotate(-40deg)';}
+}
+
+// ═══════════════════ TAP TEMPO ═══════════════════
+let tapTimes=[];
+document.getElementById('tap-btn').addEventListener('click',()=>{
+  const now=Date.now();
+  tapTimes.push(now);
+  if(tapTimes.length>8) tapTimes.shift();
+  if(tapTimes.length<2) return;
+  const intervals=tapTimes.slice(1).map((t,i)=>t-tapTimes[i]);
+  const avg=intervals.reduce((a,b)=>a+b)/intervals.length;
+  const newBpm=Math.round(60000/avg);
+  if(newBpm>=20&&newBpm<=300){ bpm=newBpm; updateBPM(); }
+  if(now-tapTimes[0]>3000) tapTimes=[];
+});
+
+// ═══════════════════ UI BUILD ═══════════════════
+function updateBPM(){
+  document.getElementById('bpm-display').textContent=bpm;
+  document.getElementById('bpm-slider').value=bpm;
+  const arcBpmEl=document.getElementById('arc-bpm');
+  if(arcBpmEl) arcBpmEl.textContent=bpm;
+}
+
+document.getElementById('bpm-p5').addEventListener('click',()=>{ bpm=Math.min(300,bpm+5); updateBPM(); });
+document.getElementById('bpm-p1').addEventListener('click',()=>{ bpm=Math.min(300,bpm+1); updateBPM(); });
+document.getElementById('bpm-m5').addEventListener('click',()=>{ bpm=Math.max(20,bpm-5); updateBPM(); });
+document.getElementById('bpm-m1').addEventListener('click',()=>{ bpm=Math.max(20,bpm-1); updateBPM(); });
+document.getElementById('bpm-slider').addEventListener('input',e=>{ bpm=+e.target.value; updateBPM(); });
+document.getElementById('vol-slider').addEventListener('input',e=>{ volume=e.target.value/100; });
+document.getElementById('start-btn').addEventListener('click',()=>{ isPlaying?stop():start(); });
+
+// Time sigs
+const sigEl=document.getElementById('sig-btns');
+TIME_SIGS.forEach((s,i)=>{
+  const b=document.createElement('button');b.className='cb'+(i===sigIdx?' on':'');b.textContent=s.l;
+  b.addEventListener('click',()=>{
+    sigIdx=i;
+    document.querySelectorAll('#sig-btns .cb').forEach((x,j)=>x.classList.toggle('on',j===i));
+    buildVisuals(); showVis(visMode);
+    if(isPlaying){stop();start();}
+  });
+  sigEl.appendChild(b);
+});
+
+// Sounds
+const sndEl=document.getElementById('sound-btns');
+SOUNDS.forEach((s,i)=>{
+  const b=document.createElement('button');b.className='cb'+(s.id===soundId?' on':'');b.textContent=s.l;
+  b.addEventListener('click',()=>{
+    soundId=s.id;
+    document.querySelectorAll('#sound-btns .cb').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+  });
+  sndEl.appendChild(b);
+});
+
+// Subdivisions
+const sdEl=document.getElementById('subdiv-btns');
+SUBDIVS.forEach(s=>{
+  const b=document.createElement('button');b.className='sdiv-btn'+(s.id===subdivId?' on':'');b.textContent=s.l;
+  b.addEventListener('click',()=>{
+    subdivId=s.id;currentSubBeat=0;
+    document.querySelectorAll('#subdiv-btns .sdiv-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    buildVisBeat();
+    if(isPlaying){stop();start();}
+  });
+  sdEl.appendChild(b);
+});
+
+// Visual mode buttons
+const vmEl=document.getElementById('vis-mode-btns');
+VIS_MODES.forEach(v=>{
+  const b=document.createElement('button');b.className='vm-btn'+(v.id===visMode?' on':'');b.textContent=v.l;
+  b.addEventListener('click',()=>{
+    visMode=v.id;
+    document.querySelectorAll('#vis-mode-btns .vm-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    showVis(visMode);
+    resetVisuals();
+  });
+  vmEl.appendChild(b);
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){ e.preventDefault(); isPlaying?stop():start(); }
+  else if(e.code==='ArrowUp'){ bpm=Math.min(300,bpm+(e.shiftKey?5:1)); updateBPM(); }
+  else if(e.code==='ArrowDown'){ bpm=Math.max(20,bpm-(e.shiftKey?5:1)); updateBPM(); }
+  else if(e.code==='KeyT'){ document.getElementById('tap-btn').click(); }
+});
+
+// Init
+buildVisuals();
+showVis('beats');
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@ h1{font-size:clamp(3.5rem,10vw,8rem);font-weight:900;color:#fff;letter-spacing:-
 h1 span{background:linear-gradient(135deg,#4a9eff,#a07af0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .byline{font-size:15px;color:#555;margin-bottom:.6rem;letter-spacing:.06em}
 .subtitle{font-size:17px;color:#555;max-width:520px;margin:.8rem auto 3.5rem;line-height:1.7}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:1000px;margin:0 auto;padding:0 1.5rem 3rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:1100px;margin:0 auto;padding:0 1.5rem 3rem}
 .card{background:#1a1a1a;border:1px solid #252525;border-radius:14px;padding:2rem;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:14px;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:14px}
 .card:hover{transform:translateY(-3px)}
@@ -24,8 +24,10 @@ h1 span{background:linear-gradient(135deg,#4a9eff,#a07af0);-webkit-background-cl
 .card:hover.card-1{border-color:#4a9eff55}
 .card:hover.card-2{border-color:#e07c4055}
 .card:hover.card-3{border-color:#4ec9a055}
+.card-4::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(192,96,144,.07),transparent)}
+.card:hover.card-4{border-color:#c0609055}
 .card-icon{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
-.ic-1{background:#4a9eff18}.ic-2{background:#e07c4018}.ic-3{background:#4ec9a018}
+.ic-1{background:#4a9eff18}.ic-2{background:#e07c4018}.ic-3{background:#4ec9a018}.ic-4{background:#c0609018}
 .card-title{font-size:22px;font-weight:700;color:#fff}
 .card-desc{font-size:14px;color:#666;line-height:1.7}
 .card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px}
@@ -33,6 +35,7 @@ h1 span{background:linear-gradient(135deg,#4a9eff,#a07af0);-webkit-background-cl
 .t-blue{background:#4a9eff18;color:#4a9eff}
 .t-amber{background:#e07c4018;color:#e07c40}
 .t-green{background:#4ec9a018;color:#4ec9a0}
+.t-red{background:#c0609018;color:#c06090}
 .arrow{margin-left:auto;color:#333;font-size:22px;transition:color .2s,transform .2s;align-self:flex-start}
 .card:hover .arrow{color:#666;transform:translateX(3px)}
 </style>
@@ -80,6 +83,19 @@ h1 span{background:linear-gradient(135deg,#4a9eff,#a07af0);-webkit-background-cl
       <span class="tag t-green">Invertido 5+R</span>
       <span class="tag t-green">Disminuido</span>
       <span class="tag t-green">Stretched</span>
+    </div>
+  </a>
+  <a href="metronomo.html" class="card card-4">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div class="card-icon ic-4">🥁</div><span class="arrow">→</span>
+    </div>
+    <div class="card-title">Metrónomo</div>
+    <div class="card-desc">Metrónomo interactivo con múltiples compases, sonidos y visualizaciones. Tap tempo, subdivisiones y atajos de teclado.</div>
+    <div class="card-tags">
+      <span class="tag t-red">8 compases</span>
+      <span class="tag t-red">6 sonidos</span>
+      <span class="tag t-red">4 visualizaciones</span>
+      <span class="tag t-red">Tap tempo</span>
     </div>
   </a>
 </div>
