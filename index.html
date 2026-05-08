@@ -4,100 +4,204 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Music Theory Tools</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd;overflow-x:hidden}
-.hero{padding:3.5rem 1.5rem 2.5rem;text-align:center;position:relative}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(74,158,255,.08),transparent);pointer-events:none}
-h1{font-size:clamp(3.5rem,10vw,8rem);font-weight:900;color:#fff;letter-spacing:-.04em;line-height:.95;margin-bottom:1.2rem;text-transform:uppercase}
-h1 span{background:linear-gradient(135deg,#4a9eff,#a07af0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.byline{font-size:15px;color:#555;margin-bottom:.6rem;letter-spacing:.06em}
-.subtitle{font-size:17px;color:#555;max-width:520px;margin:.8rem auto 3.5rem;line-height:1.7}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:1100px;margin:0 auto;padding:0 1.5rem 3rem}
-.card{background:#1a1a1a;border:1px solid #252525;border-radius:14px;padding:2rem;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:14px;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:14px}
-.card:hover{transform:translateY(-3px)}
-.card:hover::before{opacity:1}
-.card-1::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(74,158,255,.07),transparent)}
-.card-2::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(224,122,64,.07),transparent)}
-.card-3::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(76,201,160,.07),transparent)}
-.card:hover.card-1{border-color:#4a9eff55}
-.card:hover.card-2{border-color:#e07c4055}
-.card:hover.card-3{border-color:#4ec9a055}
-.card-4::before{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(192,96,144,.07),transparent)}
-.card:hover.card-4{border-color:#c0609055}
-.card-icon{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
-.ic-1{background:#4a9eff18}.ic-2{background:#e07c4018}.ic-3{background:#4ec9a018}.ic-4{background:#c0609018}
-.card-title{font-size:22px;font-weight:700;color:#fff}
-.card-desc{font-size:14px;color:#666;line-height:1.7}
-.card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px}
-.tag{font-size:11px;padding:4px 11px;border-radius:12px;letter-spacing:.04em}
-.t-blue{background:#4a9eff18;color:#4a9eff}
-.t-amber{background:#e07c4018;color:#e07c40}
-.t-green{background:#4ec9a018;color:#4ec9a0}
-.t-red{background:#c0609018;color:#c06090}
-.arrow{margin-left:auto;color:#333;font-size:22px;transition:color .2s,transform .2s;align-self:flex-start}
-.card:hover .arrow{color:#666;transform:translateX(3px)}
+body{background:#0e0e0e;font-family:sans-serif;color:#ddd;min-height:100vh}
+
+.hero{padding:2.5rem 2rem 1.5rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 20% 50%,rgba(74,158,255,.05),transparent);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.hero-title{font-size:clamp(2.5rem,7vw,6rem);font-weight:900;color:#fff;letter-spacing:-.04em;line-height:.9;text-transform:uppercase}
+.hero-title span{background:linear-gradient(120deg,#4a9eff,#a07af0 60%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-right{text-align:right}
+.hero-by{font-size:13px;color:#333;letter-spacing:.08em;margin-bottom:.4rem}
+.status-bar{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.status-pill{font-size:10px;padding:3px 10px;border-radius:20px;letter-spacing:.06em;background:#1a1a1a;border:1px solid #252525;color:#444}
+
+/* Bento Grid */
+.grid{max-width:1200px;margin:0 auto;padding:0 1.5rem 2rem;display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+
+.bcard{border-radius:14px;border:1px solid #1a1a1a;background:#141414;overflow:hidden;transition:border-color .2s}
+.bcard:hover{border-color:#2a2a2a}
+
+/* Card sizes */
+.bcard-large{grid-column:span 7}
+.bcard-medium{grid-column:span 5}
+.bcard-half{grid-column:span 6}
+
+.bcard-header{padding:16px 18px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a1a1a}
+.bcard-title{display:flex;align-items:center;gap:10px}
+.bcard-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ic-a{background:#4a9eff18;border:1px solid #4a9eff22}
+.ic-b{background:#e07c4018;border:1px solid #e07c4022}
+.ic-c{background:#4ec9a018;border:1px solid #4ec9a022}
+.ic-d{background:#c0609018;border:1px solid #c0609022}
+.bcard-name{font-size:15px;font-weight:700;color:#fff}
+.bcard-sub{font-size:10px;color:#444;letter-spacing:.05em;margin-top:1px}
+.open-btn{font-size:11px;padding:6px 14px;border-radius:7px;border:1px solid #252525;background:transparent;color:#666;cursor:pointer;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:5px}
+.open-btn:hover{border-color:#555;color:#fff;background:#1e1e1e}
+.open-btn.expanded{border-color:#555;color:#ddd;background:#1e1e1e}
+.open-btn.expanded::before{content:'↑ '}
+.open-btn:not(.expanded)::before{content:'↓ '}
+
+.bcard-preview{padding:14px 18px 16px;font-size:12px;color:#444;line-height:1.6}
+.preview-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.ptag{font-size:10px;padding:3px 9px;border-radius:8px;border:1px solid #1e1e1e;color:#555}
+.preview-desc{color:#3a3a3a;line-height:1.5}
+
+.bcard-frame{height:0;overflow:hidden;transition:height .3s ease}
+.bcard-frame iframe{width:100%;height:100%;border:none;display:block}
+
+@media(max-width:768px){
+  .bcard-large,.bcard-medium,.bcard-half{grid-column:span 12}
+}
 </style>
 </head>
 <body>
+
 <div class="hero">
-  <h1>Music<br><span>Theory</span><br>Tools</h1>
-  <p class="byline">by Javier Fonseca</p>
-  <p class="subtitle">Herramientas interactivas para escalas, modos, pentatónicas y composición. Todas con soporte de múltiples afinaciones.</p>
+  <div class="hero-inner">
+    <div class="hero-title">Music<br><span>Theory</span><br>Tools</div>
+    <div class="hero-right">
+      <div class="hero-by">BY JAVIER FONSECA</div>
+      <div class="status-bar">
+        <span class="status-pill">4 HERRAMIENTAS</span>
+        <span class="status-pill">10 AFINACIONES</span>
+        <span class="status-pill">7 MODOS</span>
+      </div>
+    </div>
+  </div>
 </div>
+
 <div class="grid">
-  <a href="escalas.html" class="card card-1">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div class="card-icon ic-1">🎸</div><span class="arrow">→</span>
+
+  <!-- Escalas & Modos — Large -->
+  <div class="bcard bcard-large" id="card-escalas">
+    <div class="bcard-header">
+      <div class="bcard-title">
+        <div class="bcard-icon ic-a">🎸</div>
+        <div>
+          <div class="bcard-name">Escalas & Modos</div>
+          <div class="bcard-sub">PENTA · 7 MODOS · 10 AFINACIONES</div>
+        </div>
+      </div>
+      <button class="open-btn" onclick="toggleTool('escalas',this)">Abrir</button>
     </div>
-    <div class="card-title">Escalas & Modos</div>
-    <div class="card-desc">Pentatónicas menor y mayor con las 5 posiciones, y los 7 modos en el mástil. Todo con selector de afinación compartido.</div>
-    <div class="card-tags">
-      <span class="tag t-blue">Pentatónicas</span>
-      <span class="tag t-blue">7 modos</span>
-      <span class="tag t-blue">10 afinaciones</span>
+    <div class="bcard-preview" id="prev-escalas">
+      <div class="preview-tags">
+        <span class="ptag">Pentatónica Menor</span><span class="ptag">Pentatónica Mayor</span>
+        <span class="ptag">Ionian</span><span class="ptag">Dorian</span>
+        <span class="ptag">Phrygian</span><span class="ptag">5 posiciones</span>
+        <span class="ptag">Drop D / Drop C</span>
+      </div>
+      <div class="preview-desc">Visualiza cualquier modo o escala pentatónica en el mástil. Selecciona tónica, afinación y navega por el mástil con flechas.</div>
     </div>
-  </a>
-  <a href="compositor.html" class="card card-2">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div class="card-icon ic-2">🎹</div><span class="arrow">→</span>
+    <div class="bcard-frame" id="frame-escalas">
+      <iframe src="" data-src="escalas.html"></iframe>
     </div>
-    <div class="card-title">Compositor — Función Tonal</div>
-    <div class="card-desc">Construye progresiones de acordes y visualiza la tensión tonal en tiempo real. Tablatura automática, 7 modos y 10 afinaciones.</div>
-    <div class="card-tags">
-      <span class="tag t-amber">7 modos</span>
-      <span class="tag t-amber">Tensión tonal</span>
-      <span class="tag t-amber">Tablatura</span>
-      <span class="tag t-amber">10 afinaciones</span>
+  </div>
+
+  <!-- Compositor Función Tonal — Medium -->
+  <div class="bcard bcard-medium" id="card-compositor">
+    <div class="bcard-header">
+      <div class="bcard-title">
+        <div class="bcard-icon ic-b">🎹</div>
+        <div>
+          <div class="bcard-name">Función Tonal</div>
+          <div class="bcard-sub">ACORDES · TABLATURA · TENSIÓN</div>
+        </div>
+      </div>
+      <button class="open-btn" onclick="toggleTool('compositor',this)">Abrir</button>
     </div>
-  </a>
-  <a href="powerchords.html" class="card card-3">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div class="card-icon ic-3">⚡</div><span class="arrow">→</span>
+    <div class="bcard-preview" id="prev-compositor">
+      <div class="preview-tags">
+        <span class="ptag">7 modos</span><span class="ptag">Tensión tonal</span>
+        <span class="ptag">Tablatura</span><span class="ptag">Tríadas / 7mas</span>
+      </div>
+      <div class="preview-desc">Construye progresiones diatónicas y visualiza el arco de tensión. Tablatura calculada por afinación.</div>
     </div>
-    <div class="card-title">Compositor — Power Chords</div>
-    <div class="card-desc">Compone con los 4 tipos de power chord: Standard, Invertido, Disminuido y Stretched. Visualiza tensión y tablatura en tiempo real.</div>
-    <div class="card-tags">
-      <span class="tag t-green">Standard R+5</span>
-      <span class="tag t-green">Invertido 5+R</span>
-      <span class="tag t-green">Disminuido</span>
-      <span class="tag t-green">Stretched</span>
+    <div class="bcard-frame" id="frame-compositor">
+      <iframe src="" data-src="compositor.html"></iframe>
     </div>
-  </a>
-  <a href="metronomo.html" class="card card-4">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div class="card-icon ic-4">🥁</div><span class="arrow">→</span>
+  </div>
+
+  <!-- Power Chords — Half -->
+  <div class="bcard bcard-half" id="card-powerchords">
+    <div class="bcard-header">
+      <div class="bcard-title">
+        <div class="bcard-icon ic-c">⚡</div>
+        <div>
+          <div class="bcard-name">Power Chords</div>
+          <div class="bcard-sub">STD · INV · DIM · STRETCHED</div>
+        </div>
+      </div>
+      <button class="open-btn" onclick="toggleTool('powerchords',this)">Abrir</button>
     </div>
-    <div class="card-title">Metrónomo</div>
-    <div class="card-desc">Metrónomo interactivo con múltiples compases, sonidos y visualizaciones. Tap tempo, subdivisiones y atajos de teclado.</div>
-    <div class="card-tags">
-      <span class="tag t-red">8 compases</span>
-      <span class="tag t-red">6 sonidos</span>
-      <span class="tag t-red">4 visualizaciones</span>
-      <span class="tag t-red">Tap tempo</span>
+    <div class="bcard-preview" id="prev-powerchords">
+      <div class="preview-tags">
+        <span class="ptag">7 modos</span><span class="ptag">R+5 Standard</span>
+        <span class="ptag">5+R Invertido</span><span class="ptag">R+b5 Dim</span><span class="ptag">Stretched</span>
+      </div>
+      <div class="preview-desc">Compositor de power chords con tipos, tensión tonal y tablatura. Incluye todos los modos para cada tipo.</div>
     </div>
-  </a>
+    <div class="bcard-frame" id="frame-powerchords">
+      <iframe src="" data-src="powerchords.html"></iframe>
+    </div>
+  </div>
+
+  <!-- Metrónomo — Half -->
+  <div class="bcard bcard-half" id="card-metronomo">
+    <div class="bcard-header">
+      <div class="bcard-title">
+        <div class="bcard-icon ic-d">🥁</div>
+        <div>
+          <div class="bcard-name">Metrónomo</div>
+          <div class="bcard-sub">BPM · COMPÁS · VISUALIZACIÓN</div>
+        </div>
+      </div>
+      <button class="open-btn" onclick="toggleTool('metronomo',this)">Abrir</button>
+    </div>
+    <div class="bcard-preview" id="prev-metronomo">
+      <div class="preview-tags">
+        <span class="ptag">Tap tempo</span><span class="ptag">8 compases</span>
+        <span class="ptag">6 sonidos</span><span class="ptag">4 visualizaciones</span>
+      </div>
+      <div class="preview-desc">Metrónomo interactivo con péndulo, pulso, arco y visualización de beats. Subdivisiones hasta semicorcheas.</div>
+    </div>
+    <div class="bcard-frame" id="frame-metronomo">
+      <iframe src="" data-src="metronomo.html"></iframe>
+    </div>
+  </div>
+
 </div>
+
+<script>
+const EXPANDED_H=680;
+const state={};
+
+function toggleTool(name, btn){
+  const frame=document.getElementById(`frame-${name}`);
+  const prev=document.getElementById(`prev-${name}`);
+  const iframe=frame.querySelector('iframe');
+  const open=state[name];
+  state[name]=!open;
+  if(!open){
+    if(!iframe.src) iframe.src=iframe.dataset.src;
+    frame.style.height=EXPANDED_H+'px';
+    prev.style.display='none';
+    btn.classList.add('expanded');
+    btn.textContent='Cerrar';
+    btn.classList.add('expanded');
+    // Scroll to card
+    setTimeout(()=>document.getElementById(`card-${name}`).scrollIntoView({behavior:'smooth',block:'start'}),50);
+  } else {
+    frame.style.height='0';
+    prev.style.display='';
+    btn.classList.remove('expanded');
+    btn.textContent='Abrir';
+  }
+}
+</script>
 </body>
 </html>
