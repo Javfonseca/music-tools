@@ -573,6 +573,12 @@ buildTune();
 buildModeButtons();
 buildPalette();
 updateAll();
+
+// Hide header when loaded inside an iframe (dashboard mode)
+if(window.top !== window.self) {
+  const hdr = document.querySelector('.header');
+  if(hdr) hdr.style.display = 'none';
+}
 </script>
 </body>
 </html>

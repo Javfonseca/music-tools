@@ -299,6 +299,12 @@ document.getElementById('key-sel').addEventListener('change',e=>{selKey=e.target
 document.getElementById('ext-sel').addEventListener('change',e=>{selExt=e.target.value;progression=progression.map(c=>({...c,name:chordName(selKey,selModeKey,c.chordIdx,selExt),tension:chordTension(selModeKey,c.chordIdx,selExt)}));buildPalette();updateAll();});
 document.getElementById('key-sel').innerHTML=rootNames.map(r=>`<option value="${r}"${r==='A'?' selected':''}>${r}</option>`).join('');
 buildTuneButtons();buildAll();
+
+// Hide header when loaded inside an iframe (dashboard mode)
+if(window.top !== window.self) {
+  const hdr = document.querySelector('.header');
+  if(hdr) hdr.style.display = 'none';
+}
 </script>
 </body>
 </html>
