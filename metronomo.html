@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metrónomo — Music Theory Tools</title>
 <style>
@@ -66,9 +67,8 @@ body{background:#111;min-height:100vh;font-family:sans-serif;color:#ddd;user-sel
 .pend-svg{overflow:visible}
 
 #vis-pulse{width:100%;min-height:280px;display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap}
-.pulse-ring{width:180px;height:180px;border-radius:50%;border:3px solid #252525;display:flex;align-items:center;justify-content:center;position:relative;transition:border-color .06s}
-.pulse-inner{width:100px;height:100px;border-radius:50%;background:#1e1e1e;transition:background .06s,transform .06s,box-shadow .06s}
-.beat-counter{font-size:48px;font-weight:900;color:#333;transition:color .06s}
+.pulse-ring{width:220px;height:220px;border-radius:50%;border:3px solid #252525;display:flex;align-items:center;justify-content:center;transition:border-color .06s,box-shadow .06s,transform .06s}
+.beat-counter{font-size:130px;font-weight:900;color:#333;transition:color .1s,transform .1s;line-height:1;font-variant-numeric:tabular-nums}
 
 #vis-arc{width:100%;min-height:280px;display:flex;align-items:center;justify-content:center}
 
@@ -350,9 +350,8 @@ function buildVisPulse(){
   const el=document.getElementById('vis-pulse');
   el.innerHTML=`
     <div class="pulse-ring" id="pulse-ring">
-      <div class="pulse-inner" id="pulse-inner"></div>
-    </div>
-    <div class="beat-counter" id="beat-counter">1</div>`;
+      <div class="beat-counter" id="beat-counter">1</div>
+    </div>`;
 }
 
 function buildVisArc(){
@@ -443,21 +442,18 @@ function flashVisual(subBeat, mainBeat, isMain){
   }
   else if(visMode==='pulse'&&isMain){
     const ring=document.getElementById('pulse-ring');
-    const inner=document.getElementById('pulse-inner');
     const counter=document.getElementById('beat-counter');
     if(!ring) return;
     ring.style.borderColor=color;
-    inner.style.background=color;
-    inner.style.transform='scale(1.15)';
-    inner.style.boxShadow=`0 0 30px ${isAccent?'#4a9eff88':'#ffffff44'}`;
-    if(counter){ counter.textContent=mainBeat+1; counter.style.color=color; }
+    ring.style.transform='scale(1.1)';
+    ring.style.boxShadow=`0 0 40px ${isAccent?'#4a9eff66':'#ffffff33'}`;
+    if(counter){ counter.textContent=mainBeat+1; counter.style.color=color; counter.style.transform='scale(1.08)'; }
     setTimeout(()=>{
-      inner.style.background='#1e1e1e';
-      inner.style.transform='scale(1)';
-      inner.style.boxShadow='none';
       ring.style.borderColor='#252525';
-      if(counter) counter.style.color='#333';
-    }, 80);
+      ring.style.transform='scale(1)';
+      ring.style.boxShadow='none';
+      if(counter){ counter.style.color='#333'; counter.style.transform='scale(1)'; }
+    }, 90);
   }
   else if(visMode==='arc'&&isMain){
     // Highlight the beat dot on the arc
@@ -492,12 +488,10 @@ function animateArc(){
 
 function resetVisuals(){
   document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('active'));
-  const inner=document.getElementById('pulse-inner');
-  if(inner){inner.style.background='#1e1e1e';inner.style.transform='scale(1)';inner.style.boxShadow='none';}
   const ring=document.getElementById('pulse-ring');
-  if(ring) ring.style.borderColor='#252525';
+  if(ring){ring.style.borderColor='#252525';ring.style.transform='scale(1)';ring.style.boxShadow='none';}
   const counter=document.getElementById('beat-counter');
-  if(counter){counter.textContent='1';counter.style.color='#333';}
+  if(counter){counter.textContent='1';counter.style.color='#333';counter.style.transform='scale(1)';}
   const prog=document.getElementById('arc-prog');
   if(prog) prog.style.strokeDashoffset=2*Math.PI*90;
   const head=document.getElementById('arc-head');
